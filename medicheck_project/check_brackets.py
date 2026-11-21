@@ -1,0 +1,42 @@
+import re
+
+c = open('MediCheck.html', encoding='utf-8').read()
+script = re.search(r'<script>(.*?)</script>', c, re.DOTALL).group(1)
+
+# Super simple JS syntax validator (just checks brackets)
+def check_brackets(text):
+    stack = []
+    in_string = False
+    string_char = ''
+    escape = False
+    
+    for i, char in enumerate(text):
+        if not in_string:
+            if char in ["'", '"', '`']:
+                in_string = True
+                string_char = char
+            elif char in ['{', '[', '(']:
+                stack.append((char, i))
+            elif char in ['}', ']', ')']:
+                if not stack:
+                    return f"Unmatched {char} at index {i}"
+                top, _ = stack.pop()
+                if (char == '}' and top != '{') or \
+                   (char == ']' and top != '[') or \
+                   (char == ')' and top != '('):
+                    return f"Mismatched {char} at index {i}"
+        else:
+            if escape:
+                escape = False
+            elif char == '\\':
+                escape = True
+            elif char == string_char:
+                in_string = False
+
+    if stack:
+        return f"Unclosed {stack[-1][0]} opened at index {stack[-1][1]}"
+    if in_string:
+        return f"Unclosed string {string_char}"
+    return "OK"
+
+print(check_brackets(script))

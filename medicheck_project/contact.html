@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCheck — Contact Us</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="page-contact">
+
+  <div class="wrap" style="padding-top:2.5rem;max-width:980px">
+    <div style="text-align:center;margin-bottom:3rem">
+      <h1 class="section-title">Get In Touch With MediCheck</h1>
+      <p class="section-sub">Have questions about lab sample pick-ups, test reports, or corporate health checkups?</p>
+    </div>
+    <div class="contact-grid">
+      <div>
+        <div class="form-card" style="padding:2rem">
+          <h3 style="font-size:1.3rem;margin-bottom:1.25rem;color:var(--primary-dark)">Send Us a Message</h3>
+          <div class="fg" style="margin-bottom:1.2rem"><label>Your Name *</label><input id="c-name" placeholder="John Doe"></div>
+          <div class="fg" style="margin-bottom:1.2rem"><label>Email Address *</label><input id="c-email" type="email" placeholder="john@example.com"></div>
+          <div class="fg" style="margin-bottom:1.2rem"><label>Phone Number</label><input id="c-phone" type="tel" placeholder="10-digit mobile"></div>
+          <div class="fg" style="margin-bottom:1.5rem"><label>How can we help you? *</label><textarea id="c-msg" rows="4" placeholder="Ask about home collection, report status, or package details…"></textarea></div>
+          <button class="btn btn-primary" style="width:100%" onclick="submitContact()">Send Inquiry →</button>
+        </div>
+      </div>
+      <div>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:20px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+          <h3 style="font-size:1.2rem;margin-bottom:1rem;color:var(--primary-dark)">🏢 Central Diagnostic Reference Lab</h3>
+          <p style="color:var(--muted);font-size:.93rem;margin-bottom:.75rem">📍 102 Health Avenue, Medical Hub Zone,<br>Sector 4, Pune, Maharashtra - 411001</p>
+          <p style="color:var(--muted);font-size:.93rem;margin-bottom:.75rem">📞 <strong>24/7 Helpline:</strong> +91 1800-123-4567<br>📱 <strong>WhatsApp:</strong> +91 98765-43210</p>
+          <p style="color:var(--muted);font-size:.93rem">✉️ <strong>Email:</strong> support@medicheck.in</p>
+        </div>
+        <div style="background:var(--teal-light);border:1px solid #99f6e4;border-radius:20px;padding:1.5rem">
+          <h4 style="color:#0f766e;font-size:1.05rem;margin-bottom:.5rem">⏱️ Operating Hours</h4>
+          <ul style="list-style:none;color:#115e59;font-size:.89rem;line-height:1.9">
+            <li>• <strong>Lab Sample Collection:</strong> 06:30 AM – 08:00 PM</li>
+            <li>• <strong>Home Collection Pickups:</strong> 07:00 AM – 05:00 PM</li>
+            <li>• <strong>Report Access:</strong> 24 Hours Online</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

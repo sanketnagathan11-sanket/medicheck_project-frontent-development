@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block title %}My Bookings — MediCheck Diagnostic Lab{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding-top: 2.5rem;">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">Patient Portal &amp; Bookings Lookup</h1>
+      <p class="section-subtitle">Search your bookings by phone number or Booking ID to check report status.</p>
+    </div>
+  </div>
+
+  <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.5rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-sm); max-width: 650px;">
+    <form action="{{ url_for('my_bookings') }}" method="GET" style="display: flex; gap: 0.75rem;">
+      <input type="tel" name="phone" value="{{ phone }}" placeholder="Enter 10-digit registered phone number" style="flex: 1;">
+      <button type="submit" class="btn btn-primary">Find My Bookings</button>
+    </form>
+  </div>
+
+  {% if patient %}
+  <div style="background: var(--primary-light); border: 1px solid var(--border-focus); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
+    <div>
+      <h3 style="font-size: 1.2rem; color: var(--primary-dark);">👤 Patient: {{ patient.full_name }}</h3>
+      <div style="font-size: 0.9rem; color: var(--text-muted);">Phone: {{ patient.phone }} | Email: {{ patient.email or 'N/A' }}</div>
+    </div>
+    <div>
+      <span class="badge {% if patient.membership_tier == 'Premium' %}badge-ready{% else %}badge-scheduled{% endif %}" style="font-size: 0.9rem; padding: 0.4rem 1rem;">
+        {{ patient.membership_tier }} Membership
+      </span>
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    {% if bookings %}
+    <h2 style="font-size: 1.35rem; margin-bottom: 1.25rem;">📋 Booking Records ({{ bookings | length }})</h2>
+
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Booking ID</th>
+            <th>Type</th>
+            <th>Date &amp; Slot</th>
+            <th>Tests Booked</th>
+            <th>Total Amount</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Lab Report</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for b in bookings %}
+          <tr>
+            <td>
+              <strong style="color: var(--primary); font-size: 1rem;">#{{ b.booking_id }}</strong>
+            </td>
+            <td>
+              <span class="badge {% if b.booking_type == 'Home Collection' %}badge-ready{% else %}badge-scheduled{% endif %}">
+                {{ b.booking_type }}
+              </span>
+            </td>
+            <td>
+              <div style="font-weight: 600;">{{ b.booking_date }}</div>
+              <div style="font-size: 0.8rem; color: var(--text-muted);">🕒 {{ b.slot_time }}</div>
+            </td>
+            <td>
+              <div style="max-width: 250px; font-size: 0.88rem; color: var(--text-main);">
+                {{ b.test_list or 'Standard Panel' }}
+              </div>
+            </td>
+            <td>
+              <strong>₹{{ b.total_amount }}</strong>
+            </td>
+            <td>
+              <span class="badge {% if b.payment_status == 'Paid' %}badge-paid{% else %}badge-pending{% endif %}">
+                {{ b.payment_status or 'Pending' }} ({{ b.payment_mode or 'Online' }})
+              </span>
+            </td>
+            <td>
+              {% if b.status == 'Scheduled' %}
+                <span class="badge badge-scheduled">📅 Scheduled</span>
+              {% elif b.status == 'Sample Collected' %}
+                <span class="badge badge-collected">🧪 Sample Collected</span>
+              {% elif b.status == 'Report Ready' %}
+                <span class="badge badge-ready">✅ Report Ready</span>
+              {% else %}
+                <span class="badge badge-cancelled">❌ Cancelled</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if b.status == 'Report Ready' %}
+                <a href="{{ url_for('view_report', booking_id=b.booking_id) }}" class="btn btn-teal btn-sm" target="_blank">
+                  📄 View Report
+                </a>
+              {% else %}
+                <span style="font-size: 0.82rem; color: var(--text-muted); font-style: italic;">In Progress</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% elif phone %}
+    <div style="text-align: center; padding: 3.5rem; background: white; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+      <p style="font-size: 1.15rem; color: var(--text-muted);">No booking records found for phone number <strong>{{ phone }}</strong>.</p>
+      <a href="{{ url_for('book') }}" class="btn btn-primary" style="margin-top: 1.25rem;">Book a New Test Now</a>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+      <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+      <h3 style="font-size: 1.35rem; margin-bottom: 0.5rem;">Track Your Lab Results</h3>
+      <p style="color: var(--text-muted); max-width: 500px; margin: 0 auto 1.5rem;">Enter your 10-digit mobile number above to view all current and past diagnostic appointments and download verified report PDFs.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

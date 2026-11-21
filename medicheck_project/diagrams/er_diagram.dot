@@ -1,0 +1,94 @@
+digraph MediCheckERD {
+  rankdir=LR;
+  bgcolor="white";
+  node [shape=plaintext, fontname="Helvetica"];
+  edge [fontname="Helvetica", fontsize=10, color="#1F4D42", fontcolor="#4C8B6F"];
+
+  PATIENTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>PATIENTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  patient_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    full_name</TD></TR>
+      <TR><TD ALIGN="LEFT">    dob, gender</TD></TR>
+      <TR><TD ALIGN="LEFT">UK  phone, email</TD></TR>
+      <TR><TD ALIGN="LEFT">    membership_tier</TD></TR>
+    </TABLE>>];
+
+  STAFF [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>STAFF</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  staff_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    full_name, role</TD></TR>
+      <TR><TD ALIGN="LEFT">    phone, email</TD></TR>
+    </TABLE>>];
+
+  TESTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>TESTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  test_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    test_name, category</TD></TR>
+      <TR><TD ALIGN="LEFT">    sample_type, price</TD></TR>
+      <TR><TD ALIGN="LEFT">    report_time_hrs</TD></TR>
+    </TABLE>>];
+
+  PACKAGES [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>PACKAGES</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  package_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    package_name</TD></TR>
+      <TR><TD ALIGN="LEFT">    price, tier</TD></TR>
+    </TABLE>>];
+
+  PACKAGE_TESTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#D99A34">
+      <TR><TD BGCOLOR="#D99A34"><B>PACKAGE_TESTS</B></TD></TR>
+      <TR><TD ALIGN="LEFT">FK  package_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  test_id</TD></TR>
+    </TABLE>>];
+
+  BOOKINGS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>BOOKINGS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  booking_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  patient_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  assigned_staff</TD></TR>
+      <TR><TD ALIGN="LEFT">    booking_type, status</TD></TR>
+      <TR><TD ALIGN="LEFT">    booking_date, slot_time</TD></TR>
+      <TR><TD ALIGN="LEFT">    total_amount</TD></TR>
+    </TABLE>>];
+
+  BOOKING_TESTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#D99A34">
+      <TR><TD BGCOLOR="#D99A34"><B>BOOKING_TESTS</B></TD></TR>
+      <TR><TD ALIGN="LEFT">FK  booking_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  test_id</TD></TR>
+    </TABLE>>];
+
+  REPORTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>REPORTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  report_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  booking_id, test_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    result_status</TD></TR>
+      <TR><TD ALIGN="LEFT">    report_date</TD></TR>
+    </TABLE>>];
+
+  PAYMENTS [label=<
+    <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0" CELLPADDING="5" BGCOLOR="white" COLOR="#1F4D42">
+      <TR><TD BGCOLOR="#1F4D42"><FONT COLOR="white"><B>PAYMENTS</B></FONT></TD></TR>
+      <TR><TD ALIGN="LEFT">PK  payment_id</TD></TR>
+      <TR><TD ALIGN="LEFT">FK  booking_id</TD></TR>
+      <TR><TD ALIGN="LEFT">    amount, mode</TD></TR>
+      <TR><TD ALIGN="LEFT">    payment_status</TD></TR>
+    </TABLE>>];
+
+  PATIENTS -> BOOKINGS [label="1:M  makes"];
+  STAFF -> BOOKINGS [label="1:M  assigned to"];
+  BOOKINGS -> BOOKING_TESTS [label="1:M"];
+  TESTS -> BOOKING_TESTS [label="1:M"];
+  PACKAGES -> PACKAGE_TESTS [label="1:M"];
+  TESTS -> PACKAGE_TESTS [label="1:M"];
+  BOOKINGS -> REPORTS [label="1:M  generates"];
+  TESTS -> REPORTS [label="1:M"];
+  BOOKINGS -> PAYMENTS [label="1:M  paid via"];
+}

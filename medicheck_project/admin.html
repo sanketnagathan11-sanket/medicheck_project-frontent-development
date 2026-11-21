@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCheck — Staff Portal</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body id="page-admin">
+
+  <div class="wrap" style="padding-top:2.5rem">
+    <div class="section-head">
+      <div>
+        <h1 class="section-title">Staff &amp; Operations Dashboard</h1>
+        <p class="section-sub">Manage sample collection, assign staff, and update report status.</p>
+      </div>
+      <span class="badge b-ready">System Active</span>
+    </div>
+    <div class="stat-cards" id="admin-stats"></div>
+    <div class="filter-bar" style="margin-bottom:2rem">
+      <div class="filter-bar-inner">
+        <div style="font-weight:700;font-size:.9rem;color:var(--muted)">Filter:</div>
+        <select id="admin-status-filter" onchange="renderAdmin()" style="width:auto">
+          <option value="">All Statuses</option>
+          <option value="Scheduled">Scheduled</option>
+          <option value="Sample Collected">Sample Collected</option>
+          <option value="Report Ready">Report Ready</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <select id="admin-type-filter" onchange="renderAdmin()" style="width:auto">
+          <option value="">All Types</option>
+          <option value="Walk-in">Walk-in</option>
+          <option value="Home Collection">Home Collection</option>
+        </select>
+        <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+      </div>
+    </div>
+    <div class="admin-layout">
+      <div>
+        <h2 style="font-size:1.3rem;margin-bottom:1rem">Recent Booking Orders</h2>
+        <div class="table-wrap" id="admin-table-wrap"></div>
+      </div>
+      <div>
+        <h2 style="font-size:1.3rem;margin-bottom:1rem">Staff Workload</h2>
+        <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05)" id="staff-workload"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

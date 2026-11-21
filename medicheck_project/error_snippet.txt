@@ -1,0 +1,14 @@
+═══════════════════════════════
+//  BOOK PAGE
+// ═══════════════════════════════════════════════════════════════
+function initBook(extra){
+  extra = extra||{};
+  // Set today's date
+  document.getElementById('b-date').value = new Date().toISOString().split('T')[0];
+  
+  // Pre-fill if logged in
+  const session = ls('session');
+  if(session && session.type === 'patient') {
+    const pt = getPatients().find(p => p.patient_id === session.id);
+    if(pt) {
+      document.getElementById('b-name').val

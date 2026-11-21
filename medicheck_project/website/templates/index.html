@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}MediCheck — Diagnostic Lab & Home Sample Collection{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="hero-badge">⚡ Standard &amp; Premium Diagnostics</div>
+      <h1 class="hero-title">Accurate Lab Testing <span>Delivered To Your Door.</span></h1>
+      <p class="hero-desc">
+        Experience seamless diagnostic healthcare with MediCheck. Book walk-in lab appointments or schedule priority home sample collection with digital reports sent straight to your device.
+      </p>
+      <div class="hero-actions">
+        <a href="{{ url_for('book') }}" class="btn btn-primary">Book Test / Home Pickup</a>
+        <a href="{{ url_for('tests') }}" class="btn btn-outline-white">Browse All Tests</a>
+      </div>
+    </div>
+    
+    <div>
+      <div style="background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(16px); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid rgba(255, 255, 255, 0.15);">
+        <h3 style="color: white; margin-bottom: 1rem; font-size: 1.25rem;">🔍 Track Your Sample Status</h3>
+        <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 1.25rem;">Already booked? Enter your registered phone number to view live test report status.</p>
+        <form action="{{ url_for('my_bookings') }}" method="GET" style="display: flex; gap: 0.5rem;">
+          <input type="tel" name="phone" placeholder="Enter 10-digit phone number" required style="border-radius: var(--radius-sm); border: none;">
+          <button type="submit" class="btn btn-teal" style="white-space: nowrap;">Track</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="stats-banner">
+    <div class="stat-item">
+      <div class="stat-num">{{ stats.patient_count }}+</div>
+      <div class="stat-label">Registered Patients</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">{{ stats.test_count }}</div>
+      <div class="stat-label">Lab Tests Offered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">{{ stats.booking_count }}</div>
+      <div class="stat-label">Bookings Completed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">NABL</div>
+      <div class="stat-label">Certified Accreditation</div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <h2 class="section-title">Popular Health Checkup Packages</h2>
+        <p class="section-subtitle">Bundled diagnostic packages designed for comprehensive wellness checks.</p>
+      </div>
+      <a href="{{ url_for('tests') }}" class="btn btn-outline btn-sm">View All Packages &rarr;</a>
+    </div>
+
+    <div class="grid-3">
+      {% for pkg in packages %}
+      <div class="card">
+        <div class="card-badge {% if pkg.tier == 'Premium' %}badge-premium{% else %}badge-mass{% endif %}">
+          {{ pkg.tier }} Tier
+        </div>
+        <h3 class="card-title">{{ pkg.package_name }}</h3>
+        <p class="card-desc">{{ pkg.description }}</p>
+        <div class="card-price">₹{{ pkg.price }} <span>/ package</span></div>
+        <a href="{{ url_for('book', package_id=pkg.package_id) }}" class="btn btn-primary btn-sm">Book This Package</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="tier-section">
+      <div style="text-align: center; max-width: 650px; margin: 0 auto 2.5rem;">
+        <h2 class="section-title">Tailored Service Tiers</h2>
+        <p class="section-subtitle">Choose between standard lab walk-ins or priority home sample collection.</p>
+      </div>
+
+      <div class="tier-grid">
+        <div class="tier-card">
+          <div class="tier-card-header">
+            <div class="tier-icon tier-icon-mass">🏢</div>
+            <div>
+              <h3 style="font-size: 1.35rem;">Mass Tier (Walk-in)</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">Standard lab appointment booking</p>
+            </div>
+          </div>
+          <ul class="tier-list">
+            <li>Walk-in appointment scheduling at lab branch</li>
+            <li>Standard turnaround time (4 - 24 hours)</li>
+            <li>Digital report download via SMS / online portal</li>
+            <li>Affordable standard pricing</li>
+          </ul>
+          <a href="{{ url_for('book') }}" class="btn btn-outline btn-sm" style="width: 100%;">Book Walk-in</a>
+        </div>
+
+        <div class="tier-card premium">
+          <div class="tier-card-header">
+            <div class="tier-icon tier-icon-premium">🚗</div>
+            <div>
+              <h3 style="font-size: 1.35rem;">Premium Tier (Home Collection)</h3>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">VIP home sample collection &amp; express reports</p>
+            </div>
+          </div>
+          <ul class="tier-list">
+            <li>Trained phlebotomist assigned to your home address</li>
+            <li>Flexible morning and afternoon home slot booking</li>
+            <li>Priority lab sample processing</li>
+            <li>Complimentary digital report consultation</li>
+          </ul>
+          <a href="{{ url_for('book') }}" class="btn btn-teal btn-sm" style="width: 100%;">Book Home Sample Collection</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

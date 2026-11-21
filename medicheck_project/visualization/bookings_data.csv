@@ -1,0 +1,54 @@
+Month,Category,Tier,Bookings,Revenue
+2026-01,Blood & Sugar,Mass,10,3850
+2026-01,Cardiac,Mass,3,1600
+2026-01,Full Body Checkup,Mass,3,3000
+2026-01,Imaging,Mass,5,3900
+2026-01,Liver & Kidney,Mass,6,3900
+2026-01,Thyroid,Mass,3,2100
+2026-02,Blood & Sugar,Mass,1,350
+2026-02,Cardiac,Mass,5,2600
+2026-02,Full Body Checkup,Mass,1,900
+2026-02,Imaging,Mass,1,500
+2026-02,Imaging,Premium,1,1200
+2026-02,Liver & Kidney,Mass,4,1700
+2026-03,Blood & Sugar,Premium,1,150
+2026-03,Cardiac,Mass,4,2000
+2026-03,Full Body Checkup,Mass,3,3700
+2026-03,Full Body Checkup,Premium,5,5300
+2026-03,Imaging,Premium,1,500
+2026-03,Liver & Kidney,Premium,2,850
+2026-03,Thyroid,Mass,3,2100
+2026-03,Thyroid,Premium,1,700
+2026-04,Blood & Sugar,Mass,1,500
+2026-04,Blood & Sugar,Premium,1,150
+2026-04,Cardiac,Mass,3,2200
+2026-04,Cardiac,Premium,5,2700
+2026-04,Full Body Checkup,Mass,3,3000
+2026-04,Full Body Checkup,Premium,1,900
+2026-04,Imaging,Mass,1,1200
+2026-04,Imaging,Premium,2,1700
+2026-04,Liver & Kidney,Mass,5,3250
+2026-04,Thyroid,Premium,1,700
+2026-05,Blood & Sugar,Mass,7,2150
+2026-05,Blood & Sugar,Premium,3,450
+2026-05,Cardiac,Mass,1,600
+2026-05,Cardiac,Premium,2,1000
+2026-05,Full Body Checkup,Mass,1,700
+2026-05,Imaging,Mass,1,500
+2026-05,Liver & Kidney,Mass,2,850
+2026-05,Liver & Kidney,Premium,3,1500
+2026-06,Blood & Sugar,Mass,2,650
+2026-06,Cardiac,Mass,4,2300
+2026-06,Cardiac,Premium,1,400
+2026-06,Full Body Checkup,Mass,4,3900
+2026-06,Imaging,Mass,3,2900
+2026-06,Liver & Kidney,Mass,4,2150
+2026-06,Thyroid,Mass,1,700
+2026-07,Blood & Sugar,Mass,4,1150
+2026-07,Cardiac,Mass,5,3400
+2026-07,Cardiac,Premium,1,900
+2026-07,Full Body Checkup,Mass,1,700
+2026-07,Full Body Checkup,Premium,2,1600
+2026-07,Imaging,Mass,3,1500
+2026-07,Liver & Kidney,Mass,6,2550
+2026-07,Thyroid,Mass,1,700

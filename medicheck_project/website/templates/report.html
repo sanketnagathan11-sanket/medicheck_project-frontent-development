@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCheck Diagnostic Report #{{ booking.booking_id }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    body { background-color: #f1f5f9; }
+    @media print {
+      body { background: white; }
+      .no-print { display: none !important; }
+      .report-paper { box-shadow: none; border: none; padding: 0; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap no-print" style="padding-top: 1.5rem; text-align: right;">
+    <button onclick="window.print()" class="btn btn-primary btn-sm">🖨️ Print / Download PDF</button>
+  </div>
+
+  <div class="report-paper">
+    <div class="report-header">
+      <div>
+        <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 800; color: var(--primary);">
+          + MediCheck Diagnostics
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          NABL Accredited &amp; ISO 9001:2015 Certified Reference Laboratory<br>
+          Helpline: +91 1800-123-4567 | Email: reports@medicheck.in
+        </div>
+      </div>
+      <div style="text-align: right;">
+        <div class="badge badge-ready" style="font-size: 0.9rem;">OFFICIAL TEST REPORT</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">
+          Report Ref: <strong>#MC-{{ booking.booking_id }}-2026</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="report-meta-grid">
+      <div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Patient Info</div>
+        <div style="font-size: 1.1rem; font-weight: 700; color: var(--text-main);">{{ booking.full_name }}</div>
+        <div style="font-size: 0.9rem; color: var(--text-muted);">
+          DOB: {{ booking.dob }} | Gender: {{ booking.gender }} | Phone: {{ booking.phone }}
+        </div>
+      </div>
+
+      <div style="text-align: right;">
+        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Booking &amp; Sample Info</div>
+        <div style="font-size: 0.95rem; font-weight: 600;">Booking Date: {{ booking.booking_date }}</div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">Report Generated: 2026-07-21</div>
+      </div>
+    </div>
+
+    <h3 style="font-size: 1.25rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border-light); padding-bottom: 0.5rem;">
+      Diagnostic Test Results Summary
+    </h3>
+
+    <div class="table-responsive" style="margin-bottom: 2.5rem;">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Test Investigation</th>
+            <th>Category</th>
+            <th>Sample Type</th>
+            <th>Observed Result</th>
+            <th>Reference Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in reports %}
+          <tr>
+            <td>
+              <strong style="color: var(--text-main); font-size: 1rem;">{{ r.test_name }}</strong>
+            </td>
+            <td>{{ r.category }}</td>
+            <td>{{ r.sample_type }}</td>
+            <td>
+              {% if r.result_status == 'Normal' %}
+                <span style="color: var(--success); font-weight: 700;">Within Normal Limits</span>
+              {% elif r.result_status == 'Abnormal' %}
+                <span style="color: var(--danger); font-weight: 700;">Attention Required</span>
+              {% else %}
+                <span style="color: var(--warning); font-weight: 700;">Processing</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {% if r.result_status == 'Normal' %}badge-ready{% elif r.result_status == 'Abnormal' %}badge-cancelled{% else %}badge-pending{% endif %}">
+                {{ r.result_status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: flex-end; border-top: 1px dashed var(--border-light); padding-top: 2rem;">
+      <div>
+        <div style="font-size: 0.85rem; color: var(--text-muted);">
+          *** End of Medical Laboratory Report ***<br>
+          Note: This report is electronically authenticated by qualified pathologists.
+        </div>
+      </div>
+      <div style="text-align: center;">
+        <div style="font-family: 'Brush Script MT', cursive, sans-serif; font-size: 1.5rem; color: var(--primary-dark);">Dr. R. K. Patil (MD Path)</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">Chief Consultant Pathologist</div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

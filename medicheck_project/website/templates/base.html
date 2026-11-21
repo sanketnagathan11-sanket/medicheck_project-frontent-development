@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MediCheck Diagnostic Lab & Home Collection{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="{{ url_for('home') }}">
+        <span class="brand-mark">+</span>
+        <span>MediCheck</span>
+      </a>
+
+      <nav class="site-nav">
+        <a href="{{ url_for('home') }}" class="{% if request.endpoint == 'home' %}active{% endif %}">Home</a>
+        <a href="{{ url_for('tests') }}" class="{% if request.endpoint == 'tests' %}active{% endif %}">Tests & Packages</a>
+        <a href="{{ url_for('my_bookings') }}" class="{% if request.endpoint == 'my_bookings' %}active{% endif %}">My Bookings</a>
+        <a href="{{ url_for('admin') }}" class="{% if request.endpoint == 'admin' %}active{% endif %}">Staff Portal</a>
+        <a href="{{ url_for('contact') }}" class="{% if request.endpoint == 'contact' %}active{% endif %}">Contact</a>
+        <a href="{{ url_for('book') }}" class="btn-nav-highlight">Book a Test</a>
+      </nav>
+    </div>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="wrap flash-container">
+        {% for category, m in messages %}
+          <div class="flash-tag {{ category if category else 'info' }}">
+            <span>{{ m }}</span>
+            <button onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-weight:bold; font-size:1.1rem; color:inherit;">&times;</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div>
+        <div class="footer-brand">+ MediCheck Diagnostics</div>
+        <p>Leading Diagnostic Lab & Home Sample Collection Network</p>
+        <div class="fine-print" style="margin-top: 0.5rem;">
+          Field Project-I (24CsDscU3002) — Diagnostic Management System
+        </div>
+      </div>
+
+      <div class="tag-strip">
+        <span class="lab-tag">MASS WALK-IN TIER</span>
+        <span class="lab-tag lab-tag-premium">PREMIUM HOME COLLECTION TIER</span>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

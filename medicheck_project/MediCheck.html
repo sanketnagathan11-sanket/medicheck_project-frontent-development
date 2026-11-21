@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="MediCheck — Diagnostic Lab & Home Sample Collection Booking System. Book tests, track reports, manage bookings.">
+  <title>MediCheck — Diagnostic Lab & Home Sample Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    :root {
+      --primary: #0284c7; --primary-dark: #0369a1; --primary-light: #e0f2fe;
+      --teal: #0d9488; --teal-light: #ccfbf1; --accent: #6366f1;
+      --bg: #f8fafc; --card: #ffffff; --dark: #0f172a;
+      --text: #1e293b; --muted: #64748b; --light: #94a3b8;
+      --border: #e2e8f0; --focus: #38bdf8;
+      --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -1px rgba(0,0,0,.04);
+      --shadow-lg: 0 10px 25px -5px rgba(15,23,42,.08);
+      --r: 12px; --rf: 9999px;
+      --font-h: 'Outfit',sans-serif; --font-b: 'Plus Jakarta Sans',sans-serif;
+      --transition: all .25s cubic-bezier(.4,0,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:var(--font-b);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased}
+    h1,h2,h3,h4{font-family:var(--font-h);color:var(--text);font-weight:700;line-height:1.25}
+    a{color:var(--primary);text-decoration:none;transition:var(--transition)}
+    a:hover{color:var(--primary-dark)}
+    .wrap{width:100%;max-width:1200px;margin:0 auto;padding:0 1.5rem}
+    main{flex:1;padding-bottom:4rem}
+    .page{display:none}.page.active{display:block}
+
+    /* ── Header ─────────────────────────────────────── */
+    header{background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+    .hdr{display:flex;align-items:center;justify-content:space-between;height:72px}
+    .brand{display:flex;align-items:center;gap:.6rem;font-family:var(--font-h);font-size:1.45rem;font-weight:800;color:var(--text);cursor:pointer}
+    .brand-mark{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;box-shadow:0 4px 12px rgba(2,132,199,.3)}
+    nav{display:flex;align-items:center;gap:1.5rem}
+    nav a{font-weight:600;font-size:.93rem;color:var(--muted);padding:.4rem .2rem;position:relative;cursor:pointer;border:none;background:none}
+    nav a:hover,nav a.active{color:var(--primary)}
+    nav a.active::after{content:'';position:absolute;bottom:-4px;left:0;right:0;height:3px;background:var(--primary);border-radius:2px}
+    .nav-btn{background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff!important;padding:.55rem 1.2rem!important;border-radius:var(--rf);box-shadow:0 4px 14px rgba(2,132,199,.25);transition:var(--transition)}
+    .nav-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(2,132,199,.35)}
+
+    /* ── Flash ───────────────────────────────────────── */
+    .flash{background:var(--primary-light);border:1px solid var(--focus);color:var(--primary-dark);padding:1rem 1.25rem;border-radius:var(--r);font-weight:600;margin:1rem 0;display:flex;justify-content:space-between;align-items:center;animation:slideDown .3s ease}
+    .flash.success{background:#d1fae5;border-color:#6ee7b7;color:#065f46}
+    .flash.danger{background:#fee2e2;border-color:#fca5a5;color:#991b1b}
+    @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+    #flash-container{position:fixed;top:1.5rem;right:1.5rem;z-index:10000;display:flex;flex-direction:column;gap:.5rem;pointer-events:none}
+    #flash-container .flash{pointer-events:auto;margin:0;min-width:300px;box-shadow:0 10px 25px rgba(0,0,0,.1)}
+
+    /* ── Buttons ─────────────────────────────────────── */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.72rem 1.55rem;font-family:var(--font-b);font-weight:600;font-size:.93rem;border-radius:var(--r);border:1px solid transparent;cursor:pointer;transition:var(--transition)}
+    .btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;box-shadow:0 4px 14px rgba(2,132,199,.3)}
+    .btn-primary:hover{color:#fff;transform:translateY(-2px);box-shadow:0 6px 20px rgba(2,132,199,.4)}
+    .btn-teal{background:linear-gradient(135deg,var(--teal),#0f766e);color:#fff;box-shadow:0 4px 14px rgba(13,148,136,.3)}
+    .btn-teal:hover{color:#fff;transform:translateY(-2px)}
+    .btn-outline{background:transparent;border-color:var(--border);color:var(--text)}
+    .btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+    .btn-outline-white{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+    .btn-outline-white:hover{background:rgba(255,255,255,.1);color:#fff}
+    .btn-sm{padding:.42rem .95rem;font-size:.83rem;border-radius:8px}
+    .btn-danger{background:linear-gradient(135deg,var(--danger),#b91c1c);color:#fff}
+
+    /* ── Forms ────────────────────────────────────────── */
+    .form-card{background:var(--card);border-radius:20px;padding:2.5rem;box-shadow:var(--shadow-lg);border:1px solid var(--border)}
+    .form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.25rem}
+    .fg{display:flex;flex-direction:column;gap:.4rem}
+    .fg.full{grid-column:span 2}
+    label{font-weight:600;font-size:.87rem;color:var(--text)}
+    input,select,textarea{width:100%;padding:.72rem 1rem;border:1px solid var(--border);border-radius:8px;font-family:var(--font-b);font-size:.93rem;color:var(--text);background:#fff;transition:var(--transition)}
+    input:focus,select:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(2,132,199,.15)}
+    .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem}
+    .section-title{font-size:1.9rem;letter-spacing:-.02em}
+    .section-sub{color:var(--muted);font-size:1rem;margin-top:.35rem}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.75rem}
+    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem}
+    .card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:1.75rem;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:var(--transition);display:flex;flex-direction:column}
+    .card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+    .badge{display:inline-flex;align-items:center;padding:.27rem .75rem;border-radius:var(--rf);font-size:.79rem;font-weight:700}
+    .b-mass{background:var(--primary-light);color:var(--primary-dark)}
+    .b-premium{background:#fef3c7;color:#b45309}
+    .b-scheduled{background:#e0f2fe;color:#0369a1}
+    .b-collected{background:#fef3c7;color:#b45309}
+    .b-ready{background:#d1fae5;color:#047857}
+    .b-cancelled{background:#fee2e2;color:#b91c1c}
+    .b-paid{background:#d1fae5;color:#047857}
+    .b-pending{background:#fef3c7;color:#b45309}
+    .card-badge{align-self:flex-start;padding:.24rem .72rem;border-radius:var(--rf);font-size:.74rem;font-weight:700;text-transform:uppercase;margin-bottom:1rem;letter-spacing:.05em}
+    .card-price{font-family:var(--font-h);font-size:1.7rem;font-weight:800;color:var(--text);margin-bottom:1.1rem}
+    .card-price span{font-size:.82rem;color:var(--muted);font-weight:500}
+
+    /* ── Hero ─────────────────────────────────────────── */
+    .hero{background:linear-gradient(135deg,#0f172a 0%,#1e293b 50%,#0369a1 100%);color:#fff;padding:4.5rem 0 5.5rem;border-radius:0 0 32px 32px;margin-bottom:3.5rem;position:relative;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-50%;right:-10%;width:600px;height:600px;background:radial-gradient(circle,rgba(13,148,136,.25) 0%,rgba(0,0,0,0) 70%);pointer-events:none}
+    .hero-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:3rem;align-items:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);padding:.4rem 1rem;border-radius:var(--rf);font-size:.83rem;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,.2)}
+    .hero-title{font-size:3.1rem;font-weight:800;line-height:1.15;color:#fff;margin-bottom:1.2rem}
+    .hero-title span{background:linear-gradient(135deg,#38bdf8,#2dd4bf);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hero-desc{font-size:1.1rem;color:#cbd5e1;margin-bottom:2rem;max-width:560px}
+    .hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+    .hero-box{background:rgba(255,255,255,.09);backdrop-filter:blur(16px);padding:2rem;border-radius:20px;border:1px solid rgba(255,255,255,.15)}
+    .hero-box h3{color:#fff;margin-bottom:.9rem;font-size:1.2rem}
+    .hero-box p{color:#cbd5e1;font-size:.88rem;margin-bottom:1.2rem}
+    .hero-box-row{display:flex;gap:.5rem}
+
+    /* ── Stats Banner ─────────────────────────────────── */
+    .stats-banner{background:rgba(255,255,255,.97);border-radius:20px;padding:1.75rem 2.5rem;box-shadow:0 20px 30px -10px rgba(2,132,199,.15);border:1px solid var(--border);display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-top:-3.5rem;position:relative;z-index:10}
+    .stat-item{text-align:center;padding:.5rem 1rem;border-right:1px solid var(--border)}
+    .stat-item:last-child{border-right:none}
+    .stat-num{font-family:var(--font-h);font-size:2.2rem;font-weight:800;color:var(--primary);line-height:1;margin-bottom:.3rem}
+    .stat-label{font-size:.85rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+    /* ── Tier Section ─────────────────────────────────── */
+    .tier-section{background:linear-gradient(180deg,#f1f5f9 0%,#e2e8f0 100%);border-radius:20px;padding:3.5rem 2.5rem;margin:3rem 0 1rem}
+    .tier-grid{display:grid;grid-template-columns:1fr 1fr;gap:2rem}
+    .tier-card{background:#fff;border-radius:var(--r);padding:2.25rem;box-shadow:var(--shadow)}
+    .tier-card.premium{border:2px solid var(--warning)}
+    .tier-icon{width:50px;height:50px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:1.5rem}
+    .tier-list{list-style:none;margin:1.25rem 0}
+    .tier-list li{display:flex;align-items:center;gap:.75rem;margin-bottom:.7rem;font-size:.94rem}
+    .tier-list li::before{content:'✓';color:var(--success);font-weight:800}
+
+    /* ── Table ────────────────────────────────────────── */
+    .table-wrap{overflow-x:auto;background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    table{width:100%;border-collapse:collapse;text-align:left;font-size:.91rem}
+    th{background:#f8fafc;padding:.95rem 1.2rem;font-weight:700;color:var(--muted);text-transform:uppercase;font-size:.77rem;letter-spacing:.05em;border-bottom:1px solid var(--border)}
+    td{padding:1.05rem 1.2rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#f8fafc}
+
+    /* ── Tests Selector ───────────────────────────────── */
+    .tests-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;max-height:300px;overflow-y:auto;padding:.8rem;border:1px solid var(--border);border-radius:var(--r);background:#f8fafc}
+    .test-check{background:#fff;border:1px solid var(--border);border-radius:8px;padding:.7rem 1rem;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:var(--transition)}
+    .test-check:hover{border-color:var(--primary);background:var(--primary-light)}
+    .test-check input[type=checkbox]{width:18px;height:18px;accent-color:var(--primary)}
+
+    /* ── Filter Bar ───────────────────────────────────── */
+    .filter-bar{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.2rem 1.5rem;margin-bottom:2rem;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+    .filter-bar-inner{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .cat-btns{display:flex;gap:.5rem;flex-wrap:wrap}
+
+    /* ── Admin Grid ───────────────────────────────────── */
+    .admin-layout{display:grid;grid-template-columns:1.8fr 1.4fr;gap:2rem}
+    .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2.5rem}
+    .stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+    .stat-card-num{font-family:var(--font-h);font-size:2.1rem;font-weight:800;line-height:1;margin:.2rem 0 .1rem}
+    .stat-card-label{font-size:.79rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+
+    /* ── Report ───────────────────────────────────────── */
+    .report-paper{background:#fff;max-width:820px;margin:2rem auto;padding:3.5rem;border-radius:var(--r);box-shadow:0 20px 30px -10px rgba(2,132,199,.15);border:1px solid var(--border)}
+    .report-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:1.75rem;border-bottom:2px solid var(--primary);margin-bottom:2rem}
+    .report-meta{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;background:#f8fafc;padding:1.25rem 1.5rem;border-radius:8px;margin-bottom:2rem}
+
+    /* ── Contact ──────────────────────────────────────── */
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:2.5rem}
+
+    /* ── Footer ───────────────────────────────────────── */
+    footer{background:var(--dark);color:#94a3b8;padding:3rem 0 2rem;border-top:1px solid #1e293b;margin-top:auto}
+    .footer-inner{display:flex;justify-content:space-between;align-items:center}
+    .footer-brand{color:#fff;font-family:var(--font-h);font-size:1.3rem;font-weight:700;margin-bottom:.5rem}
+    .fine-print{font-size:.83rem;color:#64748b}
+    .tag-strip{display:flex;gap:.75rem}
+    .lab-tag{font-size:.74rem;font-weight:800;padding:.28rem .75rem;border-radius:8px;background:#1e293b;color:#38bdf8;border:1px solid #334155}
+    .lab-tag-p{color:#fbbf24}
+
+    /* ── Responsive ───────────────────────────────────── */
+    @media(max-width:1024px){
+      .hero-grid,.tier-grid,.form-grid,.grid3,.grid4,.stat-cards,.admin-layout,.contact-grid{grid-template-columns:1fr}
+      .stats-banner{grid-template-columns:repeat(2,1fr)}
+      .stat-item{border-right:none;border-bottom:1px solid var(--border)}
+      .stat-item:nth-child(2){border-bottom:1px solid var(--border)}
+      .hero-title{font-size:2.1rem}
+      .fg.full{grid-column:span 1}
+    }
+    @media(max-width:768px){
+      .hdr{flex-direction:column;height:auto;padding:1rem 0;gap:.8rem}
+      nav{flex-wrap:wrap;justify-content:center;gap:.75rem}
+      .tests-grid{grid-template-columns:1fr}
+      .split-login-section { flex-direction: column; border-radius: 12px; }
+      .split-login-section > div { min-width: 100%; padding: 1.5rem !important; }
+      .login-banner-img { min-height: 250px !important; }
+    }
+
+    /* Page Auth Pane CSS */
+    .page-auth-pane { display: none; flex-direction: column; height: 100%; justify-content: center; animation: authFade 0.25s ease; }
+    .page-auth-pane.active { display: flex; }
+
+    /* Test tube image animation */
+    .login-banner-img {
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+      cursor: pointer;
+    }
+    .login-banner-img:hover {
+      transform: scale(1.03) rotate(1deg);
+      box-shadow: 0 10px 20px rgba(0,0,0,.15);
+    }
+    .login-banner-img:active {
+      transform: scale(0.95) rotate(-2deg);
+    }
+
+    /* ── Modal ────────────────────────────────────────── */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:20px;padding:2.5rem;max-width:600px;width:90%;max-height:90vh;overflow-y:auto;position:relative}
+    .modal-close{position:absolute;top:1rem;right:1.25rem;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted)}
+    /* ── Login / Register Popup ───────────────────────────── */
+    .auth-overlay{position:fixed;inset:0;background:rgba(15,23,42,.68);backdrop-filter:blur(7px);z-index:2000;display:none;align-items:center;justify-content:center;padding:1.25rem}
+    .auth-overlay.open{display:flex;animation:authFade .22s ease}
+    .auth-overlay.locked{background:#f8fafc;backdrop-filter:none}
+    .auth-overlay.locked .auth-modal{width:min(94vw,500px);box-shadow:0 20px 60px rgba(15,23,42,.16)}
+    .auth-overlay.locked .auth-close{display:none}
+    body.auth-locked{overflow:hidden}
+    .auth-modal{width:min(92vw,460px);background:#fff;border:1px solid var(--border);border-radius:24px;box-shadow:0 28px 70px rgba(15,23,42,.28);padding:2rem;position:relative;animation:authPop .25s ease}
+    .auth-close{position:absolute;right:1rem;top:1rem;width:38px;height:38px;border:1px solid var(--border);border-radius:50%;background:#fff;color:var(--muted);font-size:1.35rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+    .auth-logo{width:52px;height:52px;margin:0 auto .9rem;background:linear-gradient(135deg,var(--primary),var(--teal));color:#fff;border-radius:14px;display:flex;align-items:center;justify-content:center;font:800 1.8rem var(--font-h);box-shadow:0 8px 20px rgba(2,132,199,.25)}
+    .auth-title{text-align:center;font-size:1.7rem;margin-bottom:.35rem}
+    .auth-sub{text-align:center;color:var(--muted);font-size:.9rem;margin-bottom:1.4rem}
+    .auth-tabs{display:grid;grid-template-columns:1fr 1fr;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:1.25rem}
+    .auth-tab{border:0;background:transparent;border-radius:8px;padding:.65rem;font:600 .88rem var(--font-b);color:var(--muted);cursor:pointer}
+    .auth-tab.active{background:#fff;color:var(--primary-dark);box-shadow:0 1px 4px rgba(15,23,42,.09)}
+    .auth-pane{display:none}.auth-pane.active{display:block}
+    .auth-pane .fg{margin-bottom:1rem}
+    .auth-note{text-align:center;color:var(--muted);font-size:.82rem;margin-top:1rem;line-height:1.55}
+    .auth-staff{margin-top:1.15rem;padding-top:1.1rem;border-top:1px solid var(--border);text-align:center}
+    .auth-link{border:0;background:none;color:var(--primary);font:700 .88rem var(--font-b);cursor:pointer}
+    @keyframes authFade{from{opacity:0}to{opacity:1}}
+    @keyframes authPop{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+
+  </style>
+</head>
+<body>
+
+<!-- ══════════════ LOGIN / REGISTER POPUP ══════════════ -->
+<div id="auth-overlay" class="auth-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-title" onclick="if(event.target===this) closeAuth()">
+  <div class="auth-modal">
+    <button class="auth-close" onclick="closeAuth()" aria-label="Close login">&times;</button>
+    <div class="auth-logo">+</div>
+    <h2 id="auth-title" class="auth-title">Welcome to MediCheck</h2>
+    <p class="auth-sub">Sign in to manage bookings and access your healthcare dashboard.</p>
+
+    <div class="auth-tabs">
+      <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Patient Login</button>
+      <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">Register</button>
+    </div>
+
+    <div id="auth-login" class="auth-pane active">
+      <div class="fg"><label>Phone Number</label><input id="login-phone" type="tel" maxlength="10" placeholder="Enter registered 10-digit number"></div>
+      <div class="fg"><label>Password</label><input id="login-password" type="password" placeholder="Enter password"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="patientLogin()">Login to MediCheck</button>
+      <p class="auth-note">New patient? <button class="auth-link" onclick="switchAuth('register')">Create an account</button></p>
+    </div>
+
+    <div id="auth-register" class="auth-pane">
+      <div class="fg"><label>Full Name *</label><input id="reg-name" placeholder="Your full name"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="fg"><label>DOB *</label><input id="reg-dob" type="date"></div>
+        <div class="fg"><label>Gender *</label><select id="reg-gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="fg"><label>Phone *</label><input id="reg-phone" type="tel" maxlength="10" placeholder="10 digits"></div>
+        <div class="fg"><label>Email</label><input id="reg-email" type="email" placeholder="Optional"></div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div class="fg"><label>Blood Group *</label><select id="reg-bloodgroup"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+        <div class="fg"><label>Address *</label><input id="reg-address" placeholder="Address"></div>
+      </div>
+      <div class="fg"><label>Create Password *</label><input id="reg-password" type="password" placeholder="Min 4 chars"></div>
+      <button class="btn btn-teal" style="width:100%;margin-top:1rem" onclick="patientRegister()">Create Patient Account</button>
+    </div>
+
+    <div id="auth-staff" class="auth-pane">
+      <div class="fg"><label>Staff ID</label><input id="staff-id" type="number" placeholder="e.g. 6"></div>
+      <div class="fg"><label>Password</label><input id="staff-password" type="password" placeholder="Enter staff password"></div>
+      <button class="btn btn-primary" style="width:100%" onclick="staffLogin()">Login to Staff Portal</button>
+      <p class="auth-note">Demo password: <strong>medicheck123</strong></p>
+    </div>
+
+    <div class="auth-staff">
+      <button id="staff-switch" class="auth-link" onclick="switchAuth('staff')">Are you a staff member? Staff Login →</button>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div class="wrap hdr">
+    <div class="brand" onclick="showPage('home')">
+      <span class="brand-mark">+</span>
+      <span>MediCheck</span>
+    </div>
+    <nav>
+      <a id="nav-home" class="active" onclick="showPage('home')">Home</a>
+      <a id="nav-tests" onclick="showPage('tests')">Tests &amp; Packages</a>
+      <a id="nav-bookings" onclick="showPage('bookings')">My Bookings</a>
+      
+      
+      <a id="nav-admin" onclick="showPage('admin')">Staff Portal</a>
+      <a id="nav-contact" onclick="showPage('contact')">Contact</a>
+      <a id="nav-book" onclick="showPage('book')" style="cursor:pointer">Book a Test</a>
+      <a id="auth-nav" class="nav-btn btn" onclick="showPage('home'); setTimeout(()=>{document.querySelector('.split-login-section').scrollIntoView({behavior:'smooth'})},50);" style="cursor:pointer">Login</a>
+    </nav>
+  </div>
+</header>
+
+<div id="flash-container"></div>
+
+<main>
+  <!-- ══════════════ HOME PAGE ══════════════ -->
+  <div id="page-home" class="page active">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="hero-badge">⚡ Standard &amp; Premium Diagnostics</div>
+          <h1 class="hero-title">Accurate Lab Testing <span>Delivered To Your Door.</span></h1>
+          <p class="hero-desc">Book walk-in lab appointments or schedule priority home sample collection with digital reports sent straight to your device.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="showPage('book')">Book Test / Home Pickup</button>
+            <button class="btn btn-outline-white" onclick="showPage('tests')">Browse All Tests</button>
+          </div>
+        </div>
+        <div>
+          <div class="hero-box">
+            <h3>🔍 Track Your Sample Status</h3>
+            <p>Already booked? Enter your registered phone number to view live test report status.</p>
+            <div class="hero-box-row">
+              <input type="tel" id="hero-phone" placeholder="Enter 10-digit phone number" style="flex:1;border-radius:8px;border:none">
+              <button class="btn btn-teal" onclick="trackByPhone()">Track</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="wrap">
+      <div class="stats-banner" id="home-stats"></div>
+    </div>
+
+    <div class="wrap" style="padding-top:3.5rem">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title">Popular Health Checkup Packages</h2>
+          <p class="section-sub">Bundled diagnostic packages designed for comprehensive wellness checks.</p>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="showPage('tests')">View All &rarr;</button>
+      </div>
+      <div class="grid3" id="home-packages"></div>
+    </div>
+
+    <div class="wrap">
+      <div class="tier-section" id="tailored-service-tiers">
+        <div style="text-align:center;max-width:620px;margin:0 auto 2.5rem">
+          <h2 class="section-title">Tailored Service Tiers</h2>
+          <p class="section-sub">Choose between standard lab walk-ins or priority home sample collection.</p>
+        </div>
+        <div class="tier-grid">
+          <div class="tier-card">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+              <div class="tier-icon" style="background:var(--primary-light);color:var(--primary)">🏢</div>
+              <div><h3 style="font-size:1.3rem">Mass Tier (Walk-in)</h3><p style="color:var(--muted);font-size:.88rem">Standard lab appointment booking</p></div>
+            </div>
+            <ul class="tier-list">
+              <li>Walk-in appointment scheduling at lab branch</li>
+              <li>Standard turnaround time (4 – 24 hours)</li>
+              <li>Digital report download via online portal</li>
+              <li>Affordable standard pricing</li>
+            </ul>
+            <button class="btn btn-outline" style="width:100%" onclick="showPage('book')">Book Walk-in</button>
+          </div>
+          <div class="tier-card premium">
+            <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+              <div class="tier-icon" style="background:#fef3c7;color:#d97706">🚗</div>
+              <div><h3 style="font-size:1.3rem">Premium Tier (Home Collection)</h3><p style="color:var(--muted);font-size:.88rem">VIP home sample collection &amp; express reports</p></div>
+            </div>
+            <ul class="tier-list">
+              <li>Trained phlebotomist at your home address</li>
+              <li>Flexible morning &amp; afternoon home slots</li>
+              <li>Priority lab sample processing</li>
+              <li>Complimentary digital report consultation</li>
+            </ul>
+            <button class="btn btn-teal" style="width:100%" onclick="showPage('book')">Book Home Sample Collection</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- New Login Section on Home Page -->
+      <div class="split-login-section" style="margin-top: 5rem; display: flex; flex-wrap: wrap; background: #fff; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,.05);">
+        <div style="flex: 1; min-width: 320px; padding: 3rem; display: flex; flex-direction: column; justify-content: center;">
+          
+          <div id="page-auth-login" class="page-auth-pane active">
+            <h2 class="section-title" style="text-align:left; margin-bottom: 0.5rem; font-size:1.6rem">Patient Portal Login</h2>
+            <p class="section-sub" style="text-align:left; margin-bottom: 2rem; max-width: 100%;">Log in to view your diagnostic reports, track active bookings, and manage your health.</p>
+            <div class="fg" style="margin-bottom:1.2rem;"><label>Phone Number</label><input id="page-login-phone" type="tel" maxlength="10" placeholder="Enter registered 10-digit number"></div>
+            <div class="fg" style="margin-bottom:1.5rem;"><label>Password</label><input id="page-login-password" type="password" placeholder="Enter password"></div>
+            <button class="btn btn-primary" style="width:100%" onclick="pagePatientLogin()">Login to My Account</button>
+            <div style="margin-top:1.5rem; text-align:center; font-size:.9rem; color:var(--muted)">
+              <p style="margin-bottom:.6rem;">New patient? <button style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600" onclick="switchPageAuth('register')">Create an account</button></p>
+              <p><button id="page-staff-switch" style="background:none;border:none;color:var(--muted);cursor:pointer;text-decoration:underline" onclick="switchPageAuth('staff')">Are you a staff member? Staff Login &rarr;</button></p>
+            </div>
+          </div>
+
+          <div id="page-auth-register" class="page-auth-pane">
+            <h2 class="section-title" style="text-align:left; margin-bottom: 0.5rem; font-size:1.6rem">Create Patient Account</h2>
+            <p class="section-sub" style="text-align:left; margin-bottom: 1.5rem; max-width: 100%;">Register a new account to book tests and access your health dashboard.</p>
+            <div class="fg" style="margin-bottom:1rem"><label>Full Name *</label><input id="page-reg-name" placeholder="Your full name"></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem">
+              <div class="fg" style="margin-bottom:0"><label>DOB *</label><input id="page-reg-dob" type="date"></div>
+              <div class="fg" style="margin-bottom:0"><label>Gender *</label><select id="page-reg-gender" style="width:100%;padding:.65rem;border:1px solid var(--border);border-radius:4px"><option>Male</option><option>Female</option><option>Other</option></select></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem">
+              <div class="fg" style="margin-bottom:0"><label>Phone *</label><input id="page-reg-phone" type="tel" maxlength="10" placeholder="10 digits"></div>
+              <div class="fg" style="margin-bottom:0"><label>Email</label><input id="page-reg-email" type="email" placeholder="Optional"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem">
+              <div class="fg" style="margin-bottom:0"><label>Blood Group *</label><select id="page-reg-bloodgroup" style="width:100%;padding:.65rem;border:1px solid var(--border);border-radius:4px"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+              <div class="fg" style="margin-bottom:0"><label>Address *</label><input id="page-reg-address" placeholder="Residential address"></div>
+            </div>
+            <div class="fg" style="margin-bottom:1.5rem"><label>Create Password *</label><input id="page-reg-password" type="password" placeholder="Min 4 chars"></div>
+            <button class="btn btn-teal" style="width:100%" onclick="pagePatientRegister()">Create Patient Account</button>
+            <div style="margin-top:1.5rem; text-align:center; font-size:.9rem; color:var(--muted)">
+              <p><button style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600" onclick="switchPageAuth('login')">&larr; Back to Login</button></p>
+            </div>
+          </div>
+
+          <div id="page-auth-staff" class="page-auth-pane">
+            <h2 class="section-title" style="text-align:left; margin-bottom: 0.5rem; font-size:1.6rem">Staff Portal Login</h2>
+            <p class="section-sub" style="text-align:left; margin-bottom: 2rem; max-width: 100%;">Authorized personnel only. Access your tasks and system settings.</p>
+            <div class="fg" style="margin-bottom:1.2rem"><label>Staff ID</label><input id="page-staff-id" type="number" placeholder="e.g. 6"></div>
+            <div class="fg" style="margin-bottom:1.5rem"><label>Password</label><input id="page-staff-password" type="password" placeholder="Enter staff password"></div>
+            <button class="btn btn-primary" style="width:100%" onclick="pageStaffLogin()">Login to Staff Portal</button>
+            <div style="margin-top:1.5rem; text-align:center; font-size:.9rem; color:var(--muted)">
+              <p style="margin-bottom:.6rem;">Demo password: <strong>medicheck123</strong></p>
+              <p><button style="background:none;border:none;color:var(--primary);cursor:pointer;font-weight:600" onclick="switchPageAuth('login')">&larr; Back to Patient Login</button></p>
+            </div>
+          </div>
+
+        </div>
+        <div class="login-banner-img" style="flex: 1; min-width: 320px; background: url('login_banner.jpg') no-repeat center center / cover; min-height: 400px;"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════ TESTS PAGE ══════════════ -->
+  <div id="page-tests" class="page">
+    <div class="wrap" style="padding-top:2.5rem">
+      <div class="section-head">
+        <div>
+          <h1 class="section-title">Diagnostic Tests &amp; Packages</h1>
+          <p class="section-sub">Browse individual diagnostic tests or multi-parameter checkup packages.</p>
+        </div>
+        <button class="btn btn-primary" onclick="showPage('book')">Book a Test &rarr;</button>
+      </div>
+      <div class="filter-bar">
+        <div class="filter-bar-inner">
+          <div style="display:flex;gap:.5rem;flex:1;min-width:260px">
+            <input type="text" id="test-search" placeholder="Search tests…" oninput="renderTests()" style="flex:1">
+          </div>
+          <div class="cat-btns" id="cat-btns"></div>
+        </div>
+      </div>
+      <div id="tests-packages" style="margin-bottom:3rem"></div>
+      <h2 style="font-size:1.4rem;margin-bottom:1.1rem">🧪 Available Lab Tests</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Test Name</th><th>Category</th><th>Sample</th><th>Turnaround</th><th>Price</th><th>Action</th></tr></thead>
+          <tbody id="tests-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ BOOK PAGE ══════════════ -->
+  <div id="page-book" class="page">
+    <div class="wrap" style="padding-top:2.5rem;max-width:900px">
+      <div style="text-align:center;margin-bottom:2.5rem">
+        <h1 class="section-title">Schedule Your Lab Appointment</h1>
+        <p class="section-sub">Select tests or packages, choose your service tier, and pick a time slot.</p>
+      </div>
+      <div class="form-card">
+        <h3 style="font-size:1.15rem;margin-bottom:1.2rem;color:var(--primary-dark);border-bottom:2px solid var(--primary-light);padding-bottom:.5rem">1. Patient Details</h3>
+        <div class="form-grid" style="margin-bottom:2rem">
+          <div class="fg"><label>Full Name *</label><input id="b-name" placeholder="e.g. Anjali Sharma"></div>
+          <div class="fg"><label>Phone (Unique ID) *</label><input id="b-phone" type="tel" placeholder="10-digit mobile number"></div>
+          <div class="fg"><label>Email Address</label><input id="b-email" type="email" placeholder="patient@example.com"></div>
+          <div class="fg"><label>Date of Birth *</label><input id="b-dob" type="date"></div>
+          <div class="fg"><label>Gender *</label><select id="b-gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+          <div class="fg"><label>Blood Group *</label><select id="b-bloodgroup"><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+          <div class="fg"><label>Service Tier *</label><select id="b-tier" onchange="calcTotal()"><option value="Mass">Mass Tier (Standard Walk-in)</option><option value="Premium">Premium Tier (Home Collection VIP)</option></select></div>
+          <div class="fg full"><label>Full Address (Required for Home Collection)</label><input id="b-address" placeholder="Street, landmark, city, postal code"></div>
+        </div>
+        <h3 style="font-size:1.15rem;margin-bottom:1.2rem;color:var(--primary-dark);border-bottom:2px solid var(--primary-light);padding-bottom:.5rem">2. Select Tests or Package</h3>
+        <div class="fg" style="margin-bottom:1.5rem">
+          <label>Select Health Package (Optional)</label>
+          <select id="b-package" onchange="calcTotal()">
+            <option value="">-- None (Choose Individual Tests Below) --</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:2rem">
+          <label>Select Individual Tests</label>
+          <div class="tests-grid" id="book-tests-grid"></div>
+        </div>
+        <h3 style="font-size:1.15rem;margin-bottom:1.2rem;color:var(--primary-dark);border-bottom:2px solid var(--primary-light);padding-bottom:.5rem">3. Scheduling &amp; Payment</h3>
+        <div class="form-grid" style="margin-bottom:2rem">
+          <div class="fg"><label>Booking Type *</label><select id="b-type" onchange="calcTotal()"><option value="Walk-in">Walk-in Appointment</option><option value="Home Collection">Home Sample Collection (+₹150 for Mass tier)</option></select></div>
+          <div class="fg"><label>Appointment Date *</label><input id="b-date" type="date"></div>
+          <div class="fg"><label>Preferred Time Slot *</label><select id="b-slot"><option value="08:00">08:00 AM</option><option value="09:00" selected>09:00 AM</option><option value="10:00">10:00 AM</option><option value="11:00">11:00 AM</option><option value="14:00">02:00 PM</option><option value="16:00">04:00 PM</option><option value="18:00">06:00 PM</option></select></div>
+          <div class="fg"><label>Payment Method *</label><select id="b-pay"><option value="UPI">UPI (Google Pay / PhonePe)</option><option value="Card">Credit / Debit Card</option><option value="Cash">Cash on Collection</option><option value="Online">Net Banking</option></select></div>
+        </div>
+        <div style="background:var(--primary-light);padding:1.2rem 1.5rem;border-radius:var(--r);display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem">
+          <div><div style="font-weight:700;color:var(--primary-dark)">Estimated Total Amount</div><div id="total-note" style="font-size:.83rem;color:var(--muted)">Standard processing included.</div></div>
+          <div id="total-display" style="font-family:var(--font-h);font-size:2rem;font-weight:800;color:var(--primary-dark)">₹0.00</div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;font-size:1.1rem;padding:.9rem" onclick="submitBooking()">Confirm Booking &amp; Schedule Appointment →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MY BOOKINGS PAGE ══════════════ -->
+  <div id="page-bookings" class="page">
+    <div class="wrap" style="padding-top:2.5rem">
+      <div class="section-head">
+        <div>
+          <h1 class="section-title">Patient Portal &amp; Bookings Lookup</h1>
+          <p class="section-sub">Search your bookings by phone number to check live report status.</p>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.5rem;margin-bottom:2.5rem;max-width:620px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+        <div style="display:flex;gap:.75rem">
+          <input id="lookup-phone" type="tel" placeholder="Enter 10-digit registered phone number" style="flex:1">
+          <button class="btn btn-primary" onclick="lookupBookings()">Find My Bookings</button>
+        </div>
+      </div>
+      <div id="patient-info"></div>
+      <div id="bookings-results"></div>
+    </div>
+  </div>
+
+  <!-- MY PROFILE PAGE -->
+    <!-- PATIENT DB PAGE -->
+    <!-- 🧪 ADMIN PAGE 🧪 -->
+    <div id="page-admin" class="page">
+    <div class="wrap" style="padding-top:2.5rem">
+      <div class="section-head">
+        <div>
+          <h1 class="section-title">Staff &amp; Operations Dashboard</h1>
+          <p class="section-sub">Manage sample collection, assign staff, and update report status.</p>
+        </div>
+        <span class="badge b-ready">System Active</span>
+      </div>
+      <div class="stat-cards" id="admin-stats"></div>
+      <div class="filter-bar" style="margin-bottom:2rem">
+        <div class="filter-bar-inner">
+          <div style="font-weight:700;font-size:.9rem;color:var(--muted)">Filter:</div>
+          <select id="admin-status-filter" onchange="renderAdmin()" style="width:auto">
+            <option value="">All Statuses</option>
+            <option value="Scheduled">Scheduled</option>
+            <option value="Sample Collected">Sample Collected</option>
+            <option value="Report Ready">Report Ready</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <select id="admin-type-filter" onchange="renderAdmin()" style="width:auto">
+            <option value="">All Types</option>
+            <option value="Walk-in">Walk-in</option>
+            <option value="Home Collection">Home Collection</option>
+          </select>
+          <button class="btn btn-outline btn-sm" onclick="resetFilters()">Reset</button>
+        </div>
+      </div>
+      <div class="admin-layout">
+        <div>
+          <h2 style="font-size:1.3rem;margin-bottom:1rem">Recent Booking Orders</h2>
+          <div class="table-wrap" id="admin-table-wrap"></div>
+        </div>
+        <div>
+          <h2 style="font-size:1.3rem;margin-bottom:1rem">Staff Workload</h2>
+          <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05)" id="staff-workload"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ CONTACT PAGE ══════════════ -->
+  <div id="page-contact" class="page">
+    <div class="wrap" style="padding-top:2.5rem;max-width:1050px">
+      <div style="text-align:center; margin-bottom:3rem">
+        <h1 class="section-title">Get In Touch With MediCheck</h1>
+        <p class="section-sub">Have questions about lab sample pick-ups, test reports, or corporate health checkups?</p>
+      </div>
+      
+      <div class="contact-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:3rem; align-items:start;">
+        <!-- Left Side: Form -->
+        <div>
+          <div class="form-card" style="padding:2.5rem; background:#fff; border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,.05); border:1px solid var(--border);">
+            <h3 style="font-size:1.4rem; margin-bottom:1.5rem; color:var(--primary-dark);">Send Us a Message</h3>
+            
+            <div class="fg" style="margin-bottom:1.2rem;">
+              <label style="font-weight:700; color:var(--muted); font-size:.85rem; text-transform:uppercase; letter-spacing:1px;">Your Name *</label>
+              <input id="c-name" placeholder="John Doe" style="padding:.75rem 1rem; border-radius:8px; border:1px solid var(--border); font-size:1rem; outline:none;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            
+            <div class="fg" style="margin-bottom:1.2rem;">
+              <label style="font-weight:700; color:var(--muted); font-size:.85rem; text-transform:uppercase; letter-spacing:1px;">Email Address *</label>
+              <input id="c-email" type="email" placeholder="john@example.com" style="padding:.75rem 1rem; border-radius:8px; border:1px solid var(--border); font-size:1rem; outline:none;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            
+            <div class="fg" style="margin-bottom:1.2rem;">
+              <label style="font-weight:700; color:var(--muted); font-size:.85rem; text-transform:uppercase; letter-spacing:1px;">Phone Number</label>
+              <input id="c-phone" type="tel" placeholder="10-digit mobile" style="padding:.75rem 1rem; border-radius:8px; border:1px solid var(--border); font-size:1rem; outline:none;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
+            </div>
+            
+            <div class="fg" style="margin-bottom:2rem;">
+              <label style="font-weight:700; color:var(--muted); font-size:.85rem; text-transform:uppercase; letter-spacing:1px;">How can we help you? *</label>
+              <textarea id="c-msg" rows="5" placeholder="Ask about home collection, report status, or package details..." style="padding:.75rem 1rem; border-radius:8px; border:1px solid var(--border); font-size:1rem; font-family:inherit; outline:none; resize:vertical;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+            </div>
+            
+            <button class="btn btn-primary" style="width:100%; padding:1rem; font-size:1.05rem; border-radius:8px; box-shadow:0 4px 12px rgba(2,132,199,.2);" onclick="submitContact()">Send Inquiry</button>
+          </div>
+        </div>
+        
+        <!-- Right Side: Info Cards -->
+        <div style="display:flex; flex-direction:column; gap:1.5rem;">
+          
+          <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:16px; padding:2.5rem; box-shadow:0 4px 6px rgba(0,0,0,.02);">
+            <h3 style="font-size:1.3rem; margin-bottom:1.5rem; color:var(--primary-dark); display:flex; align-items:center; gap:.5rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              Central Diagnostic Lab
+            </h3>
+            
+            <div style="display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.2rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <p style="color:#475569; font-size:1rem; line-height:1.5; margin:0;">102 Health Avenue, Medical Hub Zone,<br>Sector 4, Pune, Maharashtra - 411001</p>
+            </div>
+            
+            <div style="display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.2rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <p style="color:#475569; font-size:1rem; line-height:1.5; margin:0;"><strong>24/7 Helpline:</strong> +91 1800-123-4567<br><strong>WhatsApp:</strong> +91 98765-43210</p>
+            </div>
+            
+            <div style="display:flex; align-items:flex-start; gap:1rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-top:2px; flex-shrink:0;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              <p style="color:#475569; font-size:1rem; line-height:1.5; margin:0;"><strong>Email:</strong> support@medicheck.in</p>
+            </div>
+          </div>
+          
+          <div style="background:linear-gradient(135deg, #14b8a6 0%, #0d9488 100%); border-radius:16px; padding:2.5rem; color:#fff; box-shadow:0 8px 24px rgba(20,184,166,.2);">
+            <h4 style="font-size:1.2rem; margin-bottom:1.2rem; display:flex; align-items:center; gap:.5rem;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              Operating Hours
+            </h4>
+            
+            <ul style="list-style:none; padding:0; margin:0; font-size:1rem; line-height:2.2; opacity:0.95;">
+              <li style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.2); padding-bottom:.5rem;">
+                <strong>Lab Collection:</strong> <span>06:30 AM - 08:00 PM</span>
+              </li>
+              <li style="display:flex; justify-content:space-between; border-bottom:1px solid rgba(255,255,255,0.2); padding:.5rem 0;">
+                <strong>Home Pickups:</strong> <span>07:00 AM - 05:00 PM</span>
+              </li>
+              <li style="display:flex; justify-content:space-between; padding-top:.5rem;">
+                <strong>Report Access:</strong> <span>24 Hours Online</span>
+              </li>
+            </ul>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- ══════════════ REPORT PAGE ══════════════ -->
+  <div id="page-report" class="page">
+    <div class="wrap" style="padding:.5rem 1.5rem 0;text-align:right">
+      <button class="btn btn-primary btn-sm" onclick="downloadPDF()">🖨️ Print / Save PDF</button>
+      <button class="btn btn-outline btn-sm" onclick="showPage('bookings')" style="margin-left:.5rem">← Back</button>
+    </div>
+    <div class="report-paper" id="report-content"></div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div>
+      <div class="footer-brand">+ MediCheck Diagnostics</div>
+      <p>Leading Diagnostic Lab &amp; Home Sample Collection Network</p>
+    </div>
+    <div class="tag-strip">
+      <span class="lab-tag">MASS WALK-IN TIER</span>
+      <span class="lab-tag lab-tag-p">PREMIUM HOME COLLECTION TIER</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  DATA STORE — persisted to localStorage
+// ═══════════════════════════════════════════════════════════════
+const DEFAULT_TESTS = [
+  {test_id:1,test_name:'Complete Blood Count (CBC)',category:'Blood & Sugar',sample_type:'Blood',price:350,report_time_hrs:6},
+  {test_id:2,test_name:'Fasting Blood Sugar',category:'Blood & Sugar',sample_type:'Blood',price:150,report_time_hrs:4},
+  {test_id:3,test_name:'HbA1c',category:'Blood & Sugar',sample_type:'Blood',price:500,report_time_hrs:12},
+  {test_id:4,test_name:'Lipid Profile',category:'Cardiac',sample_type:'Blood',price:600,report_time_hrs:12},
+  {test_id:5,test_name:'ECG',category:'Cardiac',sample_type:'N/A',price:400,report_time_hrs:2},
+  {test_id:6,test_name:'Troponin-I',category:'Cardiac',sample_type:'Blood',price:900,report_time_hrs:6},
+  {test_id:7,test_name:'Thyroid Profile (T3 T4 TSH)',category:'Thyroid',sample_type:'Blood',price:700,report_time_hrs:24},
+  {test_id:8,test_name:'Liver Function Test (LFT)',category:'Liver & Kidney',sample_type:'Blood',price:650,report_time_hrs:12},
+  {test_id:9,test_name:'Kidney Function Test (KFT)',category:'Liver & Kidney',sample_type:'Blood',price:650,report_time_hrs:12},
+  {test_id:10,test_name:'Urine Routine',category:'Liver & Kidney',sample_type:'Urine',price:200,report_time_hrs:6},
+  {test_id:11,test_name:'Chest X-Ray',category:'Imaging',sample_type:'N/A',price:500,report_time_hrs:4},
+  {test_id:12,test_name:'Abdominal Ultrasound',category:'Imaging',sample_type:'N/A',price:1200,report_time_hrs:8},
+  {test_id:13,test_name:'Vitamin D',category:'Full Body Checkup',sample_type:'Blood',price:1400,report_time_hrs:24},
+  {test_id:14,test_name:'Vitamin B12',category:'Full Body Checkup',sample_type:'Blood',price:900,report_time_hrs:24},
+  {test_id:15,test_name:'COVID-19 RT-PCR',category:'Full Body Checkup',sample_type:'Swab',price:700,report_time_hrs:24}
+];
+const DEFAULT_PACKAGES = [
+  {package_id:1,package_name:'Basic Health Checkup',description:'CBC + Sugar + Urine Routine',price:550,tier:'Mass',test_ids:[1,2,10]},
+  {package_id:2,package_name:'Diabetes Care Package',description:'Sugar + HbA1c + KFT',price:1100,tier:'Mass',test_ids:[2,3,9]},
+  {package_id:3,package_name:'Executive Full Body Checkup',description:'15-parameter premium panel',price:3999,tier:'Premium',test_ids:[1,3,4,7,8,9,13,14]},
+  {package_id:4,package_name:'Cardiac Risk Package',description:'Lipid + ECG + Troponin-I',price:1800,tier:'Premium',test_ids:[4,5,6]}
+];
+const DEFAULT_STAFF = [
+  {staff_id:1,full_name:'Diya Deshmukh',role:'Technician'},
+  {staff_id:2,full_name:'Karan Reddy',role:'Technician'},
+  {staff_id:3,full_name:'Rohan Shah',role:'Technician'},
+  {staff_id:4,full_name:'Pranav Verma',role:'Receptionist'},
+  {staff_id:5,full_name:'Aditi Verma',role:'Courier'},
+  {staff_id:6,full_name:'Ritu Patil',role:'Admin'}
+];
+const SEED_PATIENTS = [
+    {"patient_id": 1, "full_name": "Rohan Reddy", "phone": "9808085447", "dob": "1985-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 2, "full_name": "Aarav Deshmukh", "phone": "9877048066", "dob": "1983-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 3, "full_name": "Riya Verma", "phone": "9851455011", "dob": "1980-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 4, "full_name": "Priya Patil", "phone": "9895010857", "dob": "1994-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 5, "full_name": "Karan Singh", "phone": "9881450098", "dob": "2004-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 6, "full_name": "Rahul Rao", "phone": "9845002693", "dob": "2003-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 7, "full_name": "Priya Sharma", "phone": "9876722225", "dob": "1980-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 8, "full_name": "Isha Patil", "phone": "9857503444", "dob": "1989-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 9, "full_name": "Kabir Verma", "phone": "9851410033", "dob": "1980-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 10, "full_name": "Aditi Singh", "phone": "9867110705", "dob": "1988-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 11, "full_name": "Priya Nair", "phone": "9803323343", "dob": "1987-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 12, "full_name": "Vikram Rao", "phone": "9833142366", "dob": "1987-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 13, "full_name": "Vihaan Rao", "phone": "9802406159", "dob": "1991-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 14, "full_name": "Rahul Reddy", "phone": "9816474805", "dob": "1962-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 15, "full_name": "Kabir Sharma", "phone": "9884619108", "dob": "1978-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 16, "full_name": "Isha Deshmukh", "phone": "9828912003", "dob": "1976-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 17, "full_name": "Karan Rao", "phone": "9839533461", "dob": "1979-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 18, "full_name": "Anjali Das", "phone": "9843283585", "dob": "1990-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 19, "full_name": "Riya Nair", "phone": "9865014327", "dob": "1994-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 20, "full_name": "Aarav Rao", "phone": "9876812359", "dob": "1996-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 21, "full_name": "Neha Nair", "phone": "9865893565", "dob": "1997-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 22, "full_name": "Priya Das", "phone": "9879849781", "dob": "1981-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 23, "full_name": "Diya Nair", "phone": "9814567882", "dob": "1965-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 24, "full_name": "Neha Mehta", "phone": "9847638582", "dob": "2004-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 25, "full_name": "Riya Rao", "phone": "9846374422", "dob": "1997-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 26, "full_name": "Priya Rao", "phone": "9835852751", "dob": "1964-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 27, "full_name": "Rahul Patil", "phone": "9831345420", "dob": "1997-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 28, "full_name": "Riya Sharma", "phone": "9841076637", "dob": "1962-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 29, "full_name": "Vikram Das", "phone": "9826265478", "dob": "1970-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 30, "full_name": "Rahul Shah", "phone": "9855339046", "dob": "1973-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 31, "full_name": "Isha Shah", "phone": "9879734543", "dob": "1964-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 32, "full_name": "Kabir Reddy", "phone": "9803269970", "dob": "1970-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 33, "full_name": "Rahul Pillai", "phone": "9842706988", "dob": "2000-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 34, "full_name": "Anjali Iyer", "phone": "9881417900", "dob": "1997-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 35, "full_name": "Kabir Reddy", "phone": "9824291679", "dob": "1989-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 36, "full_name": "Rahul Mehta", "phone": "9843570537", "dob": "1971-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 37, "full_name": "Vihaan Mehta", "phone": "9827805614", "dob": "1976-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 38, "full_name": "Priya Patil", "phone": "9805775554", "dob": "1982-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 39, "full_name": "Priya Deshmukh", "phone": "9885422582", "dob": "2004-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 40, "full_name": "Riya Mehta", "phone": "9868986154", "dob": "1996-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 41, "full_name": "Diya Pillai", "phone": "9827170914", "dob": "1972-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 42, "full_name": "Riya Patil", "phone": "9839929162", "dob": "1994-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 43, "full_name": "Riya Das", "phone": "9889482246", "dob": "1984-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 44, "full_name": "Neha Reddy", "phone": "9811225984", "dob": "1986-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 45, "full_name": "Rahul Reddy", "phone": "9886061530", "dob": "1979-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 46, "full_name": "Rohan Iyer", "phone": "9850215612", "dob": "1974-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 47, "full_name": "Isha Rao", "phone": "9836662648", "dob": "1985-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 48, "full_name": "Rohan Sharma", "phone": "9855998461", "dob": "1989-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 49, "full_name": "Anjali Mehta", "phone": "9834581266", "dob": "1993-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 50, "full_name": "Neha Das", "phone": "9819546895", "dob": "1970-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 51, "full_name": "Priya Rao", "phone": "9817370672", "dob": "1966-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 52, "full_name": "Diya Rao", "phone": "9879745967", "dob": "1963-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 53, "full_name": "Rohan Rao", "phone": "9827402655", "dob": "1999-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 54, "full_name": "Aditi Pillai", "phone": "9836960081", "dob": "1985-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 55, "full_name": "Arjun Nair", "phone": "9847407686", "dob": "1979-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 56, "full_name": "Aditi Mehta", "phone": "9847936105", "dob": "1990-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 57, "full_name": "Aarav Rao", "phone": "9867253590", "dob": "1967-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 58, "full_name": "Vihaan Sharma", "phone": "9847885877", "dob": "1970-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 59, "full_name": "Rohan Iyer", "phone": "9854023185", "dob": "1990-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 60, "full_name": "Vikram Reddy", "phone": "9852521346", "dob": "1961-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 61, "full_name": "Karan Deshmukh", "phone": "9880681551", "dob": "2002-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 62, "full_name": "Rohan Iyer", "phone": "9868174784", "dob": "1967-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 63, "full_name": "Priya Mehta", "phone": "9838719091", "dob": "2004-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 64, "full_name": "Vikram Reddy", "phone": "9811721700", "dob": "2003-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 65, "full_name": "Vikram Singh", "phone": "9828089578", "dob": "1999-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 66, "full_name": "Aditi Deshmukh", "phone": "9884910949", "dob": "2003-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 67, "full_name": "Rohan Iyer", "phone": "9889556564", "dob": "1972-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 68, "full_name": "Neha Singh", "phone": "9840071715", "dob": "1984-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 69, "full_name": "Priya Sharma", "phone": "9845690265", "dob": "1980-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 70, "full_name": "Vikram Mehta", "phone": "9893069022", "dob": "2002-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 71, "full_name": "Neha Deshmukh", "phone": "9856075035", "dob": "1996-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 72, "full_name": "Priya Shah", "phone": "9893978847", "dob": "1970-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 73, "full_name": "Vikram Reddy", "phone": "9891818586", "dob": "1994-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 74, "full_name": "Kabir Sharma", "phone": "9854789883", "dob": "1969-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 75, "full_name": "Anjali Patil", "phone": "9873203454", "dob": "1996-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 76, "full_name": "Karan Nair", "phone": "9820193936", "dob": "1971-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 77, "full_name": "Isha Das", "phone": "9860658836", "dob": "1994-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 78, "full_name": "Neha Reddy", "phone": "9828804594", "dob": "1978-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 79, "full_name": "Priya Nair", "phone": "9839743958", "dob": "1994-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 80, "full_name": "Kabir Das", "phone": "9810179822", "dob": "1970-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 81, "full_name": "Vihaan Shah", "phone": "9871806435", "dob": "1981-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 82, "full_name": "Isha Verma", "phone": "9885779863", "dob": "1987-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 83, "full_name": "Diya Patil", "phone": "9859638561", "dob": "1999-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 84, "full_name": "Karan Nair", "phone": "9860845202", "dob": "1983-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 85, "full_name": "Vihaan Patil", "phone": "9824051766", "dob": "1998-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 86, "full_name": "Karan Nair", "phone": "9812354634", "dob": "1965-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 87, "full_name": "Neha Deshmukh", "phone": "9815518510", "dob": "2003-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 88, "full_name": "Vihaan Mehta", "phone": "9828898508", "dob": "1999-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 89, "full_name": "Vihaan Iyer", "phone": "9870100156", "dob": "1971-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 90, "full_name": "Aarav Deshmukh", "phone": "9857649379", "dob": "2003-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 91, "full_name": "Isha Pillai", "phone": "9811688898", "dob": "1963-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 92, "full_name": "Kabir Rao", "phone": "9898640860", "dob": "1999-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 93, "full_name": "Anjali Singh", "phone": "9827333499", "dob": "1984-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 94, "full_name": "Riya Reddy", "phone": "9827876710", "dob": "1967-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 95, "full_name": "Riya Deshmukh", "phone": "9885921289", "dob": "1977-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 96, "full_name": "Diya Reddy", "phone": "9898156968", "dob": "1978-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 97, "full_name": "Karan Sharma", "phone": "9884243236", "dob": "1983-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 98, "full_name": "Kabir Iyer", "phone": "9861265449", "dob": "1965-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 99, "full_name": "Arjun Reddy", "phone": "9884953709", "dob": "1984-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 100, "full_name": "Neha Singh", "phone": "9803970877", "dob": "1990-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 101, "full_name": "Vikram Nair", "phone": "9882903769", "dob": "1967-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 102, "full_name": "Kabir Shah", "phone": "9862257423", "dob": "2000-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 103, "full_name": "Vikram Singh", "phone": "9839842943", "dob": "1988-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 104, "full_name": "Rahul Patil", "phone": "9899185524", "dob": "1999-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 105, "full_name": "Aditi Deshmukh", "phone": "9846227046", "dob": "1995-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 106, "full_name": "Anjali Pillai", "phone": "9801288785", "dob": "1997-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 107, "full_name": "Isha Rao", "phone": "9822384665", "dob": "1992-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 108, "full_name": "Anjali Patil", "phone": "9886749564", "dob": "1978-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 109, "full_name": "Karan Singh", "phone": "9893835031", "dob": "1985-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 110, "full_name": "Rahul Rao", "phone": "9874811178", "dob": "1968-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 111, "full_name": "Aditi Pillai", "phone": "9820401553", "dob": "1970-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 112, "full_name": "Kabir Reddy", "phone": "9870388524", "dob": "1966-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 113, "full_name": "Karan Deshmukh", "phone": "9857336356", "dob": "1960-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 114, "full_name": "Riya Shah", "phone": "9850201863", "dob": "2003-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 115, "full_name": "Rohan Reddy", "phone": "9845421147", "dob": "1993-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 116, "full_name": "Karan Sharma", "phone": "9808855498", "dob": "1997-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 117, "full_name": "Isha Rao", "phone": "9872579626", "dob": "1984-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 118, "full_name": "Aditi Deshmukh", "phone": "9857711766", "dob": "1978-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 119, "full_name": "Diya Shah", "phone": "9801482481", "dob": "1983-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 120, "full_name": "Neha Nair", "phone": "9850910223", "dob": "1988-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 121, "full_name": "Anjali Patil", "phone": "9825669931", "dob": "1988-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 122, "full_name": "Neha Sharma", "phone": "9826500739", "dob": "1984-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 123, "full_name": "Aarav Deshmukh", "phone": "9876589006", "dob": "1983-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 124, "full_name": "Aarav Shah", "phone": "9838701216", "dob": "1992-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 125, "full_name": "Priya Patil", "phone": "9834487669", "dob": "1997-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 126, "full_name": "Karan Shah", "phone": "9828293307", "dob": "1971-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 127, "full_name": "Riya Deshmukh", "phone": "9866069601", "dob": "2002-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 128, "full_name": "Rahul Patil", "phone": "9880702034", "dob": "1961-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 129, "full_name": "Karan Patil", "phone": "9813311276", "dob": "1996-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 130, "full_name": "Anjali Nair", "phone": "9888536816", "dob": "1963-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 131, "full_name": "Rahul Reddy", "phone": "9866300124", "dob": "1985-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 132, "full_name": "Riya Deshmukh", "phone": "9806712329", "dob": "1975-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 133, "full_name": "Aditi Pillai", "phone": "9856118746", "dob": "2002-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 134, "full_name": "Kabir Deshmukh", "phone": "9875035619", "dob": "1984-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 135, "full_name": "Aditi Nair", "phone": "9884928284", "dob": "1980-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 136, "full_name": "Riya Patil", "phone": "9892761383", "dob": "1969-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 137, "full_name": "Diya Shah", "phone": "9856795588", "dob": "1960-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 138, "full_name": "Priya Iyer", "phone": "9811336166", "dob": "2001-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Premium", "password": "pass"},
+    {"patient_id": 139, "full_name": "Riya Mehta", "phone": "9897044104", "dob": "1977-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 140, "full_name": "Vihaan Verma", "phone": "9860810781", "dob": "1972-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 141, "full_name": "Kabir Sharma", "phone": "9883773201", "dob": "1986-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 142, "full_name": "Rohan Verma", "phone": "9838109892", "dob": "1975-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 143, "full_name": "Arjun Mehta", "phone": "9823653074", "dob": "2003-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 144, "full_name": "Neha Das", "phone": "9805377485", "dob": "2003-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 145, "full_name": "Aarav Reddy", "phone": "9844990441", "dob": "1993-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 146, "full_name": "Neha Patil", "phone": "9820189250", "dob": "1964-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 147, "full_name": "Riya Rao", "phone": "9836306910", "dob": "1981-01-01", "gender": "Female", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"},
+    {"patient_id": 148, "full_name": "Anjali Pillai", "phone": "9816212092", "dob": "1977-01-01", "gender": "Male", "email": "", "address": "Local City", "membership_tier": "Standard", "password": "pass"}
+  ];
+const SEED_BOOKINGS = [
+    {"booking_id": 1, "patient_id": 1, "booking_type": "Walk-in", "booking_date": "2026-01-25", "slot_time": "13:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 2, "patient_id": 2, "booking_type": "Walk-in", "booking_date": "2026-01-17", "slot_time": "11:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 3, "patient_id": 3, "booking_type": "Walk-in", "booking_date": "2026-01-19", "slot_time": "12:00", "status": "Scheduled", "total_amount": 385.0, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 4, "patient_id": 4, "booking_type": "Walk-in", "booking_date": "2026-01-19", "slot_time": "14:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 5, "patient_id": 5, "booking_type": "Walk-in", "booking_date": "2026-01-02", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 385.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 6, "patient_id": 6, "booking_type": "Walk-in", "booking_date": "2026-01-26", "slot_time": "16:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 7, "patient_id": 7, "booking_type": "Walk-in", "booking_date": "2026-01-27", "slot_time": "10:00", "status": "Scheduled", "total_amount": 385.0, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 8, "patient_id": 8, "booking_type": "Walk-in", "booking_date": "2026-01-24", "slot_time": "09:00", "status": "Scheduled", "total_amount": 385.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 9, "patient_id": 9, "booking_type": "Walk-in", "booking_date": "2026-01-12", "slot_time": "15:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 10, "patient_id": 10, "booking_type": "Walk-in", "booking_date": "2026-01-25", "slot_time": "16:00", "status": "Report Ready", "total_amount": 385.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 11, "patient_id": 11, "booking_type": "Walk-in", "booking_date": "2026-01-08", "slot_time": "16:00", "status": "Scheduled", "total_amount": 533.33, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 12, "patient_id": 12, "booking_type": "Walk-in", "booking_date": "2026-01-16", "slot_time": "10:00", "status": "Scheduled", "total_amount": 533.33, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 13, "patient_id": 13, "booking_type": "Walk-in", "booking_date": "2026-01-13", "slot_time": "12:00", "status": "Scheduled", "total_amount": 533.33, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 14, "patient_id": 14, "booking_type": "Walk-in", "booking_date": "2026-01-25", "slot_time": "16:00", "status": "Scheduled", "total_amount": 1000.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 15, "patient_id": 15, "booking_type": "Walk-in", "booking_date": "2026-01-17", "slot_time": "17:00", "status": "Scheduled", "total_amount": 1000.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 16, "patient_id": 16, "booking_type": "Walk-in", "booking_date": "2026-01-12", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 1000.0, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 17, "patient_id": 17, "booking_type": "Walk-in", "booking_date": "2026-01-22", "slot_time": "12:00", "status": "Report Ready", "total_amount": 780.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 18, "patient_id": 18, "booking_type": "Walk-in", "booking_date": "2026-01-18", "slot_time": "11:00", "status": "Scheduled", "total_amount": 780.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 19, "patient_id": 19, "booking_type": "Walk-in", "booking_date": "2026-01-15", "slot_time": "12:00", "status": "Report Ready", "total_amount": 780.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 20, "patient_id": 20, "booking_type": "Walk-in", "booking_date": "2026-01-12", "slot_time": "10:00", "status": "Report Ready", "total_amount": 780.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 21, "patient_id": 21, "booking_type": "Walk-in", "booking_date": "2026-01-04", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 780.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 22, "patient_id": 22, "booking_type": "Walk-in", "booking_date": "2026-01-10", "slot_time": "17:00", "status": "Scheduled", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 23, "patient_id": 23, "booking_type": "Walk-in", "booking_date": "2026-01-11", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 24, "patient_id": 24, "booking_type": "Walk-in", "booking_date": "2026-01-28", "slot_time": "11:00", "status": "Scheduled", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 25, "patient_id": 25, "booking_type": "Walk-in", "booking_date": "2026-01-04", "slot_time": "17:00", "status": "Scheduled", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 26, "patient_id": 26, "booking_type": "Walk-in", "booking_date": "2026-01-11", "slot_time": "16:00", "status": "Report Ready", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 27, "patient_id": 27, "booking_type": "Walk-in", "booking_date": "2026-01-25", "slot_time": "09:00", "status": "Sample Collected", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 28, "patient_id": 28, "booking_type": "Walk-in", "booking_date": "2026-01-15", "slot_time": "11:00", "status": "Report Ready", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 29, "patient_id": 29, "booking_type": "Walk-in", "booking_date": "2026-01-08", "slot_time": "13:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 30, "patient_id": 30, "booking_type": "Walk-in", "booking_date": "2026-01-09", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 31, "patient_id": 31, "booking_type": "Walk-in", "booking_date": "2026-02-18", "slot_time": "17:00", "status": "Scheduled", "total_amount": 350.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 32, "patient_id": 32, "booking_type": "Walk-in", "booking_date": "2026-02-17", "slot_time": "12:00", "status": "Report Ready", "total_amount": 520.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 33, "patient_id": 33, "booking_type": "Walk-in", "booking_date": "2026-02-18", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 520.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 34, "patient_id": 34, "booking_type": "Walk-in", "booking_date": "2026-02-23", "slot_time": "09:00", "status": "Report Ready", "total_amount": 520.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 35, "patient_id": 35, "booking_type": "Walk-in", "booking_date": "2026-02-19", "slot_time": "12:00", "status": "Sample Collected", "total_amount": 520.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 36, "patient_id": 36, "booking_type": "Walk-in", "booking_date": "2026-02-02", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 520.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 37, "patient_id": 37, "booking_type": "Walk-in", "booking_date": "2026-02-28", "slot_time": "17:00", "status": "Report Ready", "total_amount": 900.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 38, "patient_id": 38, "booking_type": "Walk-in", "booking_date": "2026-02-08", "slot_time": "12:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 39, "patient_id": 39, "booking_type": "Home Collection", "booking_date": "2026-02-25", "slot_time": "10:00", "status": "Scheduled", "total_amount": 1200.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 40, "patient_id": 40, "booking_type": "Walk-in", "booking_date": "2026-02-18", "slot_time": "10:00", "status": "Report Ready", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 41, "patient_id": 41, "booking_type": "Walk-in", "booking_date": "2026-02-04", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 425.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 42, "patient_id": 42, "booking_type": "Walk-in", "booking_date": "2026-02-28", "slot_time": "11:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 43, "patient_id": 43, "booking_type": "Walk-in", "booking_date": "2026-02-10", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 425.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 44, "patient_id": 44, "booking_type": "Home Collection", "booking_date": "2026-03-23", "slot_time": "12:00", "status": "Scheduled", "total_amount": 150.0, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 45, "patient_id": 45, "booking_type": "Walk-in", "booking_date": "2026-03-17", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 500.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 46, "patient_id": 46, "booking_type": "Walk-in", "booking_date": "2026-03-24", "slot_time": "11:00", "status": "Report Ready", "total_amount": 500.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 47, "patient_id": 47, "booking_type": "Walk-in", "booking_date": "2026-03-06", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 500.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 48, "patient_id": 48, "booking_type": "Walk-in", "booking_date": "2026-03-02", "slot_time": "11:00", "status": "Report Ready", "total_amount": 500.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 49, "patient_id": 49, "booking_type": "Walk-in", "booking_date": "2026-03-10", "slot_time": "12:00", "status": "Scheduled", "total_amount": 1233.33, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 50, "patient_id": 50, "booking_type": "Walk-in", "booking_date": "2026-03-06", "slot_time": "11:00", "status": "Scheduled", "total_amount": 1233.33, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 51, "patient_id": 51, "booking_type": "Walk-in", "booking_date": "2026-03-26", "slot_time": "17:00", "status": "Scheduled", "total_amount": 1233.33, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 52, "patient_id": 52, "booking_type": "Home Collection", "booking_date": "2026-03-28", "slot_time": "10:00", "status": "Report Ready", "total_amount": 1060.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 53, "patient_id": 53, "booking_type": "Home Collection", "booking_date": "2026-03-06", "slot_time": "13:00", "status": "Scheduled", "total_amount": 1060.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 54, "patient_id": 54, "booking_type": "Home Collection", "booking_date": "2026-03-22", "slot_time": "11:00", "status": "Report Ready", "total_amount": 1060.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 55, "patient_id": 55, "booking_type": "Home Collection", "booking_date": "2026-03-08", "slot_time": "13:00", "status": "Scheduled", "total_amount": 1060.0, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 56, "patient_id": 56, "booking_type": "Home Collection", "booking_date": "2026-03-27", "slot_time": "13:00", "status": "Scheduled", "total_amount": 1060.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 57, "patient_id": 57, "booking_type": "Home Collection", "booking_date": "2026-03-24", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 500.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 58, "patient_id": 58, "booking_type": "Home Collection", "booking_date": "2026-03-24", "slot_time": "12:00", "status": "Sample Collected", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 59, "patient_id": 59, "booking_type": "Home Collection", "booking_date": "2026-03-15", "slot_time": "13:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 60, "patient_id": 60, "booking_type": "Walk-in", "booking_date": "2026-03-21", "slot_time": "10:00", "status": "Report Ready", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 61, "patient_id": 61, "booking_type": "Walk-in", "booking_date": "2026-03-28", "slot_time": "14:00", "status": "Scheduled", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 62, "patient_id": 62, "booking_type": "Walk-in", "booking_date": "2026-03-16", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 63, "patient_id": 63, "booking_type": "Home Collection", "booking_date": "2026-03-28", "slot_time": "15:00", "status": "Report Ready", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 64, "patient_id": 64, "booking_type": "Walk-in", "booking_date": "2026-04-17", "slot_time": "12:00", "status": "Report Ready", "total_amount": 500.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 65, "patient_id": 65, "booking_type": "Home Collection", "booking_date": "2026-04-10", "slot_time": "17:00", "status": "Report Ready", "total_amount": 150.0, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 66, "patient_id": 66, "booking_type": "Walk-in", "booking_date": "2026-04-12", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 733.33, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 67, "patient_id": 67, "booking_type": "Walk-in", "booking_date": "2026-04-22", "slot_time": "11:00", "status": "Report Ready", "total_amount": 733.33, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 68, "patient_id": 68, "booking_type": "Walk-in", "booking_date": "2026-04-25", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 733.33, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 69, "patient_id": 69, "booking_type": "Home Collection", "booking_date": "2026-04-08", "slot_time": "14:00", "status": "Scheduled", "total_amount": 540.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 70, "patient_id": 70, "booking_type": "Home Collection", "booking_date": "2026-04-21", "slot_time": "13:00", "status": "Report Ready", "total_amount": 540.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 71, "patient_id": 71, "booking_type": "Home Collection", "booking_date": "2026-04-15", "slot_time": "17:00", "status": "Scheduled", "total_amount": 540.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 72, "patient_id": 72, "booking_type": "Home Collection", "booking_date": "2026-04-01", "slot_time": "10:00", "status": "Report Ready", "total_amount": 540.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 73, "patient_id": 73, "booking_type": "Home Collection", "booking_date": "2026-04-05", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 540.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 74, "patient_id": 74, "booking_type": "Walk-in", "booking_date": "2026-04-25", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 1000.0, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 75, "patient_id": 75, "booking_type": "Walk-in", "booking_date": "2026-04-28", "slot_time": "15:00", "status": "Scheduled", "total_amount": 1000.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 76, "patient_id": 76, "booking_type": "Walk-in", "booking_date": "2026-04-10", "slot_time": "13:00", "status": "Sample Collected", "total_amount": 1000.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 77, "patient_id": 77, "booking_type": "Home Collection", "booking_date": "2026-04-02", "slot_time": "09:00", "status": "Sample Collected", "total_amount": 900.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 78, "patient_id": 78, "booking_type": "Walk-in", "booking_date": "2026-04-10", "slot_time": "13:00", "status": "Report Ready", "total_amount": 1200.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 79, "patient_id": 79, "booking_type": "Home Collection", "booking_date": "2026-04-22", "slot_time": "17:00", "status": "Report Ready", "total_amount": 850.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 80, "patient_id": 80, "booking_type": "Home Collection", "booking_date": "2026-04-06", "slot_time": "13:00", "status": "Sample Collected", "total_amount": 850.0, "test_ids": [12], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 81, "patient_id": 81, "booking_type": "Walk-in", "booking_date": "2026-04-18", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 650.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 82, "patient_id": 82, "booking_type": "Walk-in", "booking_date": "2026-04-21", "slot_time": "14:00", "status": "Scheduled", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 83, "patient_id": 83, "booking_type": "Walk-in", "booking_date": "2026-04-14", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 84, "patient_id": 84, "booking_type": "Walk-in", "booking_date": "2026-04-05", "slot_time": "13:00", "status": "Report Ready", "total_amount": 650.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 85, "patient_id": 85, "booking_type": "Walk-in", "booking_date": "2026-04-03", "slot_time": "11:00", "status": "Scheduled", "total_amount": 650.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 86, "patient_id": 86, "booking_type": "Home Collection", "booking_date": "2026-04-03", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 87, "patient_id": 87, "booking_type": "Walk-in", "booking_date": "2026-05-06", "slot_time": "11:00", "status": "Scheduled", "total_amount": 307.14, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 88, "patient_id": 88, "booking_type": "Walk-in", "booking_date": "2026-05-21", "slot_time": "12:00", "status": "Sample Collected", "total_amount": 307.14, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 89, "patient_id": 89, "booking_type": "Walk-in", "booking_date": "2026-05-25", "slot_time": "12:00", "status": "Scheduled", "total_amount": 307.14, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 90, "patient_id": 90, "booking_type": "Walk-in", "booking_date": "2026-05-11", "slot_time": "09:00", "status": "Scheduled", "total_amount": 307.14, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 91, "patient_id": 91, "booking_type": "Walk-in", "booking_date": "2026-05-21", "slot_time": "16:00", "status": "Report Ready", "total_amount": 307.14, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 92, "patient_id": 92, "booking_type": "Walk-in", "booking_date": "2026-05-10", "slot_time": "15:00", "status": "Report Ready", "total_amount": 307.14, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 93, "patient_id": 93, "booking_type": "Walk-in", "booking_date": "2026-05-07", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 307.14, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 94, "patient_id": 94, "booking_type": "Home Collection", "booking_date": "2026-05-26", "slot_time": "10:00", "status": "Report Ready", "total_amount": 150.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 95, "patient_id": 95, "booking_type": "Home Collection", "booking_date": "2026-05-08", "slot_time": "14:00", "status": "Scheduled", "total_amount": 150.0, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 96, "patient_id": 96, "booking_type": "Home Collection", "booking_date": "2026-05-04", "slot_time": "16:00", "status": "Scheduled", "total_amount": 150.0, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 97, "patient_id": 97, "booking_type": "Walk-in", "booking_date": "2026-05-10", "slot_time": "14:00", "status": "Report Ready", "total_amount": 600.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 98, "patient_id": 98, "booking_type": "Home Collection", "booking_date": "2026-05-15", "slot_time": "09:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 99, "patient_id": 99, "booking_type": "Home Collection", "booking_date": "2026-05-11", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 500.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 100, "patient_id": 100, "booking_type": "Walk-in", "booking_date": "2026-05-25", "slot_time": "12:00", "status": "Scheduled", "total_amount": 700.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 101, "patient_id": 101, "booking_type": "Walk-in", "booking_date": "2026-05-12", "slot_time": "10:00", "status": "Report Ready", "total_amount": 500.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 102, "patient_id": 102, "booking_type": "Walk-in", "booking_date": "2026-05-26", "slot_time": "15:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 103, "patient_id": 103, "booking_type": "Walk-in", "booking_date": "2026-05-25", "slot_time": "15:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 104, "patient_id": 104, "booking_type": "Home Collection", "booking_date": "2026-05-17", "slot_time": "12:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 105, "patient_id": 105, "booking_type": "Home Collection", "booking_date": "2026-05-27", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 500.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 106, "patient_id": 106, "booking_type": "Home Collection", "booking_date": "2026-05-03", "slot_time": "17:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 107, "patient_id": 107, "booking_type": "Walk-in", "booking_date": "2026-06-18", "slot_time": "12:00", "status": "Sample Collected", "total_amount": 325.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 108, "patient_id": 108, "booking_type": "Walk-in", "booking_date": "2026-06-17", "slot_time": "13:00", "status": "Sample Collected", "total_amount": 325.0, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 109, "patient_id": 109, "booking_type": "Walk-in", "booking_date": "2026-06-14", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 575.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 110, "patient_id": 110, "booking_type": "Walk-in", "booking_date": "2026-06-17", "slot_time": "16:00", "status": "Scheduled", "total_amount": 575.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 111, "patient_id": 111, "booking_type": "Walk-in", "booking_date": "2026-06-18", "slot_time": "15:00", "status": "Report Ready", "total_amount": 575.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 112, "patient_id": 112, "booking_type": "Walk-in", "booking_date": "2026-06-20", "slot_time": "09:00", "status": "Report Ready", "total_amount": 575.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 113, "patient_id": 113, "booking_type": "Home Collection", "booking_date": "2026-06-18", "slot_time": "13:00", "status": "Report Ready", "total_amount": 400.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 114, "patient_id": 114, "booking_type": "Walk-in", "booking_date": "2026-06-18", "slot_time": "14:00", "status": "Report Ready", "total_amount": 975.0, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 115, "patient_id": 115, "booking_type": "Walk-in", "booking_date": "2026-06-13", "slot_time": "17:00", "status": "Scheduled", "total_amount": 975.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 116, "patient_id": 116, "booking_type": "Walk-in", "booking_date": "2026-06-24", "slot_time": "15:00", "status": "Scheduled", "total_amount": 975.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 117, "patient_id": 117, "booking_type": "Walk-in", "booking_date": "2026-06-18", "slot_time": "17:00", "status": "Sample Collected", "total_amount": 975.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 118, "patient_id": 118, "booking_type": "Walk-in", "booking_date": "2026-06-03", "slot_time": "17:00", "status": "Report Ready", "total_amount": 966.67, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 119, "patient_id": 119, "booking_type": "Walk-in", "booking_date": "2026-06-17", "slot_time": "15:00", "status": "Report Ready", "total_amount": 966.67, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 120, "patient_id": 120, "booking_type": "Walk-in", "booking_date": "2026-06-15", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 966.67, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 121, "patient_id": 121, "booking_type": "Walk-in", "booking_date": "2026-06-22", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 537.5, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 122, "patient_id": 122, "booking_type": "Walk-in", "booking_date": "2026-06-16", "slot_time": "09:00", "status": "Report Ready", "total_amount": 537.5, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 123, "patient_id": 123, "booking_type": "Walk-in", "booking_date": "2026-06-22", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 537.5, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 124, "patient_id": 124, "booking_type": "Walk-in", "booking_date": "2026-06-08", "slot_time": "12:00", "status": "Sample Collected", "total_amount": 537.5, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 125, "patient_id": 125, "booking_type": "Walk-in", "booking_date": "2026-06-09", "slot_time": "10:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 126, "patient_id": 126, "booking_type": "Walk-in", "booking_date": "2026-07-04", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 287.5, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 127, "patient_id": 127, "booking_type": "Walk-in", "booking_date": "2026-07-08", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 287.5, "test_ids": [3], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 128, "patient_id": 128, "booking_type": "Walk-in", "booking_date": "2026-07-11", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 287.5, "test_ids": [2], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 129, "patient_id": 129, "booking_type": "Walk-in", "booking_date": "2026-07-23", "slot_time": "09:00", "status": "Report Ready", "total_amount": 287.5, "test_ids": [1], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 130, "patient_id": 130, "booking_type": "Walk-in", "booking_date": "2026-07-07", "slot_time": "13:00", "status": "Scheduled", "total_amount": 680.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 131, "patient_id": 131, "booking_type": "Walk-in", "booking_date": "2026-07-09", "slot_time": "16:00", "status": "Report Ready", "total_amount": 680.0, "test_ids": [6], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 132, "patient_id": 132, "booking_type": "Walk-in", "booking_date": "2026-07-19", "slot_time": "12:00", "status": "Scheduled", "total_amount": 680.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 133, "patient_id": 133, "booking_type": "Walk-in", "booking_date": "2026-07-02", "slot_time": "17:00", "status": "Report Ready", "total_amount": 680.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 134, "patient_id": 134, "booking_type": "Walk-in", "booking_date": "2026-07-07", "slot_time": "10:00", "status": "Report Ready", "total_amount": 680.0, "test_ids": [4], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 135, "patient_id": 135, "booking_type": "Home Collection", "booking_date": "2026-07-06", "slot_time": "16:00", "status": "Sample Collected", "total_amount": 900.0, "test_ids": [5], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 136, "patient_id": 136, "booking_type": "Walk-in", "booking_date": "2026-07-24", "slot_time": "12:00", "status": "Scheduled", "total_amount": 700.0, "test_ids": [14], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 137, "patient_id": 137, "booking_type": "Home Collection", "booking_date": "2026-07-07", "slot_time": "09:00", "status": "Report Ready", "total_amount": 800.0, "test_ids": [13], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 3},
+    {"booking_id": 138, "patient_id": 138, "booking_type": "Home Collection", "booking_date": "2026-07-18", "slot_time": "14:00", "status": "Sample Collected", "total_amount": 800.0, "test_ids": [15], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 139, "patient_id": 139, "booking_type": "Walk-in", "booking_date": "2026-07-21", "slot_time": "15:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 140, "patient_id": 140, "booking_type": "Walk-in", "booking_date": "2026-07-01", "slot_time": "14:00", "status": "Report Ready", "total_amount": 500.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 141, "patient_id": 141, "booking_type": "Walk-in", "booking_date": "2026-07-21", "slot_time": "13:00", "status": "Scheduled", "total_amount": 500.0, "test_ids": [11], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 142, "patient_id": 142, "booking_type": "Walk-in", "booking_date": "2026-07-14", "slot_time": "16:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 143, "patient_id": 143, "booking_type": "Walk-in", "booking_date": "2026-07-15", "slot_time": "15:00", "status": "Report Ready", "total_amount": 425.0, "test_ids": [9], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 144, "patient_id": 144, "booking_type": "Walk-in", "booking_date": "2026-07-16", "slot_time": "11:00", "status": "Scheduled", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 145, "patient_id": 145, "booking_type": "Walk-in", "booking_date": "2026-07-06", "slot_time": "16:00", "status": "Report Ready", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 1},
+    {"booking_id": 146, "patient_id": 146, "booking_type": "Walk-in", "booking_date": "2026-07-19", "slot_time": "09:00", "status": "Sample Collected", "total_amount": 425.0, "test_ids": [8], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 147, "patient_id": 147, "booking_type": "Walk-in", "booking_date": "2026-07-08", "slot_time": "12:00", "status": "Report Ready", "total_amount": 425.0, "test_ids": [10], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2},
+    {"booking_id": 148, "patient_id": 148, "booking_type": "Walk-in", "booking_date": "2026-07-23", "slot_time": "11:00", "status": "Sample Collected", "total_amount": 700.0, "test_ids": [7], "payment_status": "Paid", "payment_mode": "Online", "staff_id": 2}
+  ];
+
+localStorage.removeItem('mc_patients'); localStorage.removeItem('mc_bookings'); initData();
+  function ls(key){ return JSON.parse(localStorage.getItem('mc_'+key)||'null') }
+function lsSet(key,val){ localStorage.setItem('mc_'+key, JSON.stringify(val)) }
+
+function initData(){
+  if(!ls('patients')){ lsSet('patients', SEED_PATIENTS) }
+  if(!ls('bookings')){ lsSet('bookings', SEED_BOOKINGS) }
+  if(!ls('tests')){ lsSet('tests', DEFAULT_TESTS) }
+  if(!ls('packages')){ lsSet('packages', DEFAULT_PACKAGES) }
+  if(!ls('staff')){ lsSet('staff', DEFAULT_STAFF) }
+}
+initData();
+
+function getTests(){ return ls('tests')||[] }
+function getPackages(){ return ls('packages')||[] }
+function getPatients(){ return ls('patients')||[] }
+function getBookings(){ return ls('bookings')||[] }
+function getStaff(){ return ls('staff')||[] }
+
+let nextPatientId = () => Math.max(0,...getPatients().map(p=>p.patient_id))+1;
+let nextBookingId = () => Math.max(0,...getBookings().map(b=>b.booking_id))+1;
+
+function getTestsByIds(ids){ return getTests().filter(t=>ids.includes(t.test_id)) }
+function testNames(ids){ return getTestsByIds(ids).map(t=>t.test_name).join(', ') }
+
+// ═══════════════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════════════
+let currentPage = 'home';
+function showPage(name, extra){
+  if (name === 'bookings') {
+    const session = ls('session');
+    if (!session || session.type !== 'patient') {
+      showPage('home');
+      setTimeout(() => {
+        const loginSec = document.querySelector('.split-login-section');
+        if(loginSec) loginSec.scrollIntoView({behavior: 'smooth'});
+        else openAuth();
+      }, 50);
+      flash('Please login to view your bookings.', 'warning');
+      return;
+    }
+  }
+
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav a[id]').forEach(a=>a.classList.remove('active'));
+  const pg = document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  const navEl = document.getElementById('nav-'+name);
+  if(navEl) navEl.classList.add('active');
+  currentPage = name;
+  window.scrollTo(0,0);
+  if(name==='home') renderHome();
+  if(name==='tests') renderTests();
+  if(name==='book') initBook(extra);
+  if(name==='admin') renderAdmin();
+  
+  if(name==='report' && extra) renderReport(extra);
+  if(name==='bookings') lookupBookings();
+  
+  
+}
+
+
+
+
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════
+//  FLASH MESSAGES
+// ═══════════════════════════════════════════════════════════════
+
+  function renderProfile() {
+    const session = ls('session');
+    if(!session || session.type !== 'patient') { showPage('home'); return; }
+    const patient = getPatients().find(p => p.patient_id === session.id);
+    if(patient) {
+      document.getElementById('prof-name').value = patient.full_name;
+      document.getElementById('prof-phone').value = patient.phone;
+        document.getElementById('prof-email').value = patient.email || '';
+        document.getElementById('prof-dob').value = patient.dob || '';
+        document.getElementById('prof-gender').value = patient.gender || '';
+        document.getElementById('prof-blood').value = patient.blood_group || '';
+        document.getElementById('prof-address').value = patient.address || '';
+        document.getElementById('prof-password').value = ''; 
+      
+      const initialEl = document.getElementById('prof-initial');
+      if(initialEl) initialEl.innerText = patient.full_name.charAt(0).toUpperCase();
+      const nameEl = document.getElementById('prof-display-name');
+      if(nameEl) nameEl.innerText = patient.full_name;
+      const tierEl = document.getElementById('prof-tier-badge');
+      if(tierEl) tierEl.innerText = (patient.membership_tier || 'Standard') + ' Client';
+      
+      const pBookings = getBookings().filter(b=>b.patient_id===patient.patient_id).sort((a,b)=>b.booking_id-a.booking_id);
+      
+      const total = pBookings.length;
+      const done = pBookings.filter(b=>b.status==='Report Ready').length;
+      const cancelled = pBookings.filter(b=>b.status==='Cancelled').length;
+      
+      const tEl = document.getElementById('prof-stat-total');
+      if(tEl) tEl.innerText = total;
+      const dEl = document.getElementById('prof-stat-done');
+      if(dEl) dEl.innerText = done;
+      const cEl = document.getElementById('prof-stat-cancel');
+      if(cEl) cEl.innerText = cancelled;
+      
+      let html = '';
+      if(pBookings.length === 0){
+         html = '<div style="padding:3rem 0;text-align:center;color:var(--muted)">No appointments found.</div>';
+      } else {
+         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+         html = pBookings.map(b => {
+            const d = new Date(b.booking_date);
+            const m = months[d.getMonth()];
+            const day = d.getDate();
+            
+            let badgeClass = 'b-scheduled';
+            let statusText = 'Booked';
+            if(b.status === 'Report Ready') { badgeClass = 'b-ready'; statusText = 'Done'; }
+            if(b.status === 'Cancelled') { badgeClass = ''; statusText = 'Cancelled'; }
+            if(b.status === 'Sample Collected') { badgeClass = 'b-ready'; statusText = 'Processing'; }
+            
+            return `
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:1.25rem 0; border-bottom:1px solid #f1f5f9;">
+               <div style="display:flex; gap:1.5rem; align-items:center;">
+                  <div style="text-align:center; min-width:40px;">
+                     <div style="font-size:1.3rem; font-weight:700; color:var(--text); line-height:1;">${day}</div>
+                     <div style="font-size:.8rem; color:var(--muted); text-transform:uppercase; margin-top:.1rem;">${m}</div>
+                  </div>
+                  <div>
+                     <div style="font-weight:600; color:var(--text); font-size:1.05rem; max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${b.booking_type} Visit</div>
+                     <div style="font-size:.85rem; color:var(--muted); margin-top:.2rem;">${b.slot_time}</div>
+                  </div>
+               </div>
+               <div style="display:flex; gap:2.5rem; align-items:center;">
+                  <span class="badge ${badgeClass}" style="${statusText==='Cancelled'?'background:#ffedd5;color:#c2410c':''}">${statusText}</span>
+                  <div style="text-align:right; min-width:70px;">
+                     <div style="font-weight:700; color:var(--text); font-size:1.05rem;">,1${b.total_amount}</div>
+                  </div>
+               </div>
+            </div>`;
+         }).join('');
+      }
+      const rb = document.getElementById('prof-recent-bookings');
+      if(rb) rb.innerHTML = html;
+    }
+  }
+
+  function updateProfile() {
+      const session = ls('session');
+      if(!session || session.type !== 'patient') return;
+      const newName = document.getElementById('prof-name').value.trim();
+      const newEmail = document.getElementById('prof-email').value.trim();
+      const newAddress = document.getElementById('prof-address').value.trim();
+      const newPass = document.getElementById('prof-password').value;
+      if(!newName) { flash('Name cannot be empty', 'danger'); return; }
+      let patients = getPatients();
+      let p = patients.find(p => p.patient_id === session.id);
+      if(p) {
+        p.full_name = newName;
+        p.email = newEmail;
+        p.address = newAddress;
+        if(newPass) p.password = newPass;
+        lsSet('patients', patients);
+        session.name = newName;
+        lsSet('session', session);
+        flash('Profile updated successfully!', 'success');
+        renderProfile();
+      }
+    }
+
+  function flash(msg, type=''){
+  const c = document.getElementById('flash-container');
+  const d = document.createElement('div');
+  d.className='flash '+(type||'');
+  d.innerHTML=`<span>${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;cursor:pointer;font-weight:700;font-size:1.1rem;color:inherit">&times;</button>`;
+  c.appendChild(d);
+  setTimeout(()=>{if(d.parentElement)d.remove()},6000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  HOME PAGE
+// ═══════════════════════════════════════════════════════════════
+function renderHome(){
+  const patients = getPatients(), bookings = getBookings(), tests = getTests();
+  document.getElementById('home-stats').innerHTML=`
+    <div class="stat-item"><div class="stat-num">${patients.length}+</div><div class="stat-label">Registered Patients</div></div>
+    <div class="stat-item"><div class="stat-num">${tests.length}</div><div class="stat-label">Lab Tests Offered</div></div>
+    <div class="stat-item"><div class="stat-num">${bookings.length}</div><div class="stat-label">Bookings Completed</div></div>
+    <div class="stat-item"><div class="stat-num">NABL</div><div class="stat-label">Certified Accreditation</div></div>
+  `;
+  const pkgs = getPackages().slice(0,3);
+  document.getElementById('home-packages').innerHTML=pkgs.map(pkg=>`
+    <div class="card">
+      <div class="card-badge ${pkg.tier==='Premium'?'b-premium':'b-mass'}">${pkg.tier} Tier</div>
+      <h3 style="font-size:1.2rem;margin-bottom:.5rem">${pkg.package_name}</h3>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.2rem;flex:1">${pkg.description}</p>
+      <div class="card-price">₹${pkg.price} <span>/ package</span></div>
+      <button class="btn btn-primary btn-sm" onclick="showPage('book',{pkg:${pkg.package_id}})">Book This Package</button>
+    </div>
+  `).join('');
+}
+
+function trackByPhone(){
+  const ph = document.getElementById('hero-phone').value.trim();
+  if(!ph){ flash('Please enter your phone number.','danger'); return; }
+  document.getElementById('lookup-phone').value = ph;
+  showPage('bookings');
+  setTimeout(lookupBookings, 100);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TESTS PAGE
+// ═══════════════════════════════════════════════════════════════
+let selectedCat = '';
+function renderTests(){
+  const tests = getTests(), packages = getPackages();
+  const cats = [...new Set(tests.map(t=>t.category))].sort();
+  const search = (document.getElementById('test-search')||{}).value||'';
+
+  // Category buttons
+  document.getElementById('cat-btns').innerHTML=
+    `<button class="btn btn-sm ${!selectedCat?'btn-teal':'btn-outline'}" onclick="selectedCat='';renderTests()">All</button>`+
+    cats.map(c=>`<button class="btn btn-sm ${selectedCat===c?'btn-teal':'btn-outline'}" onclick="selectedCat='${c}';renderTests()">${c}</button>`).join('');
+
+  // Packages grid (only when no filter)
+  const showPkgs = !selectedCat && !search;
+  document.getElementById('tests-packages').innerHTML = showPkgs?`
+    <h2 style="font-size:1.4rem;margin-bottom:1.1rem">📦 Wellness Health Packages</h2>
+    <div class="grid4">${packages.map(pkg=>`
+      <div class="card">
+        <div class="card-badge ${pkg.tier==='Premium'?'b-premium':'b-mass'}">${pkg.tier} Package</div>
+        <h3 style="font-size:1.1rem;margin-bottom:.5rem">${pkg.package_name}</h3>
+        <p style="color:var(--muted);font-size:.83rem;margin-bottom:1rem;flex:1">${pkg.description}</p>
+        <div class="card-price" style="font-size:1.35rem">₹${pkg.price}</div>
+        <button class="btn btn-teal btn-sm" style="width:100%" onclick="showPage('book',{pkg:${pkg.package_id}})">Book Package</button>
+      </div>
+    `).join('')}</div>
+  `:'';
+
+  // Tests table
+  let filtered = tests;
+  if(selectedCat) filtered = filtered.filter(t=>t.category===selectedCat);
+  if(search) filtered = filtered.filter(t=>t.test_name.toLowerCase().includes(search.toLowerCase())||t.category.toLowerCase().includes(search.toLowerCase()));
+  document.getElementById('tests-table').innerHTML = filtered.map(t=>`
+    <tr>
+      <td><strong>${t.test_name}</strong></td>
+      <td><span class="badge b-scheduled">${t.category}</span></td>
+      <td>🩸 ${t.sample_type}</td>
+      <td>⏱️ ${t.report_time_hrs} hrs</td>
+      <td><strong style="color:var(--primary)">₹${t.price}</strong></td>
+      <td><button class="btn btn-primary btn-sm" onclick="showPage('book',{test:${t.test_id}})">Book</button></td>
+    </tr>
+  `).join('');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  BOOK PAGE
+// ═══════════════════════════════════════════════════════════════
+function initBook(extra){
+  extra = extra||{};
+  // Set today's date
+  document.getElementById('b-date').value = new Date().toISOString().split('T')[0];
+  
+  // Pre-fill if logged in
+  const session = ls('session');
+  if(session && session.type === 'patient') {
+    const pt = getPatients().find(p => p.patient_id === session.id);
+    if(pt) {
+      document.getElementById('b-name').value = pt.full_name || '';
+      document.getElementById('b-phone').value = pt.phone || '';
+      document.getElementById('b-email').value = pt.email || '';
+      document.getElementById('b-dob').value = pt.dob || '';
+      document.getElementById('b-gender').value = pt.gender || 'Male';
+      document.getElementById('b-bloodgroup').value = pt.blood_group || '';
+      document.getElementById('b-address').value = pt.address || '';
+      
+      // Lock identity fields for security
+      document.getElementById('b-phone').disabled = true;
+      document.getElementById('b-phone').style.background = '#f1f5f9';
+    }
+  } else {
+    document.getElementById('b-name').value = '';
+    document.getElementById('b-phone').value = '';
+    document.getElementById('b-email').value = '';
+    document.getElementById('b-dob').value = '';
+    document.getElementById('b-gender').value = 'Male';
+    document.getElementById('b-bloodgroup').value = '';
+    document.getElementById('b-address').value = '';
+    
+    document.getElementById('b-phone').disabled = false;
+    document.getElementById('b-phone').style.background = '#fff';
+  }
+  // Packages dropdown
+  const pkgs = getPackages();
+  document.getElementById('b-package').innerHTML=
+    '<option value="">-- None (Choose Individual Tests Below) --</option>'+
+    pkgs.map(p=>`<option value="${p.package_id}" data-price="${p.price}" ${extra.pkg==p.package_id?'selected':''}>${p.package_name} — ₹${p.price}</option>`).join('');
+  // Tests checkboxes
+  document.getElementById('book-tests-grid').innerHTML=getTests().map(t=>`
+    <label class="test-check">
+      <div><strong>${t.test_name}</strong><div style="font-size:.76rem;color:var(--muted)">${t.category} | ${t.sample_type}</div></div>
+      <div style="display:flex;align-items:center;gap:.5rem">
+        <span style="font-weight:700;color:var(--primary)">₹${t.price}</span>
+        <input type="checkbox" name="test_ids" value="${t.test_id}" data-price="${t.price}" ${extra.test==t.test_id?'checked':''} onchange="calcTotal()">
+      </div>
+    </label>
+  `).join('');
+  calcTotal();
+}
+
+function calcTotal(){
+  const checks = document.querySelectorAll('input[name=test_ids]:checked');
+  let total = 0;
+  checks.forEach(c=>total+=parseFloat(c.dataset.price||0));
+  const pkgSel = document.getElementById('b-package');
+  if(pkgSel && pkgSel.value){
+    const pkgPrice = parseFloat(pkgSel.options[pkgSel.selectedIndex].dataset.price||0);
+    if(pkgPrice>0) total = total>0?Math.min(total,pkgPrice):pkgPrice;
+  }
+  const type = document.getElementById('b-type').value;
+  const tier = document.getElementById('b-tier').value;
+  if(type==='Home Collection' && tier!=='Premium') total+=150;
+  document.getElementById('total-display').innerText='₹'+total.toFixed(2);
+  document.getElementById('total-note').innerText = (type==='Home Collection'&&tier!=='Premium')?'Includes ₹150 Home Sample Pickup Fee':'Standard processing included.';
+}
+
+function submitBooking(){
+  const name  = document.getElementById('b-name').value.trim();
+  const phone = document.getElementById('b-phone').value.trim();
+  const email = document.getElementById('b-email').value.trim();
+  const dob   = document.getElementById('b-dob').value;
+  const gender= document.getElementById('b-gender').value;
+  const tier  = document.getElementById('b-tier').value;
+  const addr  = document.getElementById('b-address').value.trim();
+  const type  = document.getElementById('b-type').value;
+  const date  = document.getElementById('b-date').value;
+  const slot  = document.getElementById('b-slot').value;
+  const pay   = document.getElementById('b-pay').value;
+
+  if(!name||!phone||!dob){ flash('Please fill in required patient fields (Name, Phone, DOB).','danger'); return; }
+  if(phone.length<10||!/^\d+$/.test(phone)){ flash('Please enter a valid 10-digit phone number.','danger'); return; }
+
+  const checks = [...document.querySelectorAll('input[name=test_ids]:checked')];
+  const pkgSel = document.getElementById('b-package');
+  if(!checks.length && !pkgSel.value){ flash('Please select at least one test or a package.','danger'); return; }
+
+  // Find or create patient
+  let patients = getPatients();
+  let patient = patients.find(p=>p.phone===phone);
+  let patientId;
+  if(patient){
+    patientId = patient.patient_id;
+    patient.email = email||patient.email;
+    patient.membership_tier = tier;
+    lsSet('patients', patients);
+  } else {
+    patientId = nextPatientId();
+    patients.push({patient_id:patientId,full_name:name,dob,gender,phone,email,address:addr,membership_tier:tier});
+    lsSet('patients', patients);
+  }
+
+  // Gather test IDs
+  let testIds = checks.map(c=>parseInt(c.value));
+  if(pkgSel.value){
+    const pkg = getPackages().find(p=>p.package_id==pkgSel.value);
+    if(pkg) pkg.test_ids.forEach(id=>{if(!testIds.includes(id))testIds.push(id)});
+  }
+
+  // Price
+  const priced = getTests().filter(t=>testIds.includes(t.test_id));
+  let total = priced.reduce((s,t)=>s+parseFloat(t.price),0);
+  if(pkgSel.value){
+    const pkg = getPackages().find(p=>p.package_id==pkgSel.value);
+    if(pkg) total = total>0?Math.min(total,parseFloat(pkg.price)):parseFloat(pkg.price);
+  }
+  if(type==='Home Collection' && tier!=='Premium') total+=150;
+
+  const bookingId = nextBookingId();
+  const bookings  = getBookings();
+  bookings.push({booking_id:bookingId,patient_id:patientId,booking_type:type,booking_date:date,slot_time:slot,status:'Scheduled',total_amount:total,test_ids:testIds,payment_status:'Paid',payment_mode:pay});
+  lsSet('bookings', bookings);
+
+  flash(`🎉 Booking #${bookingId} confirmed! Use phone (${phone}) to track your booking.`, 'success');
+  document.getElementById('lookup-phone').value = phone;
+  showPage('bookings');
+  setTimeout(lookupBookings, 100);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MY BOOKINGS
+// ═══════════════════════════════════════════════════════════════
+function lookupBookings(){
+  let phone = document.getElementById('lookup-phone').value.trim();
+  const session = ls('session');
+  const container = document.getElementById('lookup-phone-container');
+  if(session && session.type === 'patient'){
+    const pt = getPatients().find(p=>p.patient_id === session.id);
+    if(pt) phone = pt.phone;
+    if(container) container.style.display = 'none';
+  } else {
+    if(container) container.style.display = 'block';
+  }
+  if(!phone){ document.getElementById('patient-info').innerHTML=''; document.getElementById('bookings-results').innerHTML=emptyState(); return; }
+  const patients = getPatients();
+  const patient  = patients.find(p=>p.phone===phone);
+  if(!patient){
+    document.getElementById('patient-info').innerHTML='';
+    document.getElementById('bookings-results').innerHTML=`<div style="text-align:center;padding:3.5rem;background:#fff;border-radius:var(--r);border:1px solid var(--border)"><p style="font-size:1.1rem;color:var(--muted)">No records found for <strong>${phone}</strong>.</p><button class="btn btn-primary" style="margin-top:1.25rem" onclick="showPage('book')">Book a New Test Now</button></div>`;
+    return;
+  }
+  document.getElementById('patient-info').innerHTML=`
+    <div style="background:var(--primary-light);border:1px solid var(--focus);border-radius:var(--r);padding:1.2rem 1.5rem;margin-bottom:2rem;display:flex;align-items:center;justify-content:space-between">
+      <div><h3 style="font-size:1.2rem;color:var(--primary-dark)">👤 Patient: ${patient.full_name}</h3>
+      <div style="font-size:.88rem;color:var(--muted)">Phone: ${patient.phone} | Email: ${patient.email||'N/A'}</div></div>
+      <span class="badge ${patient.membership_tier==='Premium'?'b-ready':'b-scheduled'}" style="font-size:.88rem;padding:.4rem 1rem">${patient.membership_tier} Membership</span>
+    </div>`;
+  const bookings = getBookings().filter(b=>b.patient_id===patient.patient_id).sort((a,b)=>b.booking_id-a.booking_id);
+  document.getElementById('bookings-results').innerHTML=`
+    <h2 style="font-size:1.3rem;margin-bottom:1.1rem">📋 Booking Records (${bookings.length})</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Booking ID</th><th>Type</th><th>Date &amp; Slot</th><th>Tests Booked</th><th>Amount</th><th>Payment</th><th>Status</th><th>Report</th></tr></thead>
+        <tbody>${bookings.map(b=>`
+          <tr>
+            <td><strong style="color:var(--primary)">#${b.booking_id}</strong></td>
+            <td><span class="badge ${b.booking_type==='Home Collection'?'b-ready':'b-scheduled'}">${b.booking_type}</span></td>
+            <td><div style="font-weight:600">${b.booking_date}</div><div style="font-size:.78rem;color:var(--muted)">🕒 ${b.slot_time}</div></td>
+            <td><div style="max-width:220px;font-size:.86rem">${testNames(b.test_ids||[])}</div></td>
+            <td><strong>₹${b.total_amount}</strong></td>
+            <td><span class="badge ${b.payment_status==='Paid'?'b-paid':'b-pending'}">${b.payment_status||'Pending'}</span></td>
+            <td>${statusBadge(b.status)}</td>
+            <td>${b.status==='Report Ready'?`<button class="btn btn-teal btn-sm" onclick="showPage('report',${b.booking_id})">📄 View</button>`:'<span style="font-size:.8rem;color:var(--muted);font-style:italic">In Progress</span>'}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function statusBadge(s){
+  const map = {'Scheduled':'b-scheduled 📅','Sample Collected':'b-collected 🧪','Report Ready':'b-ready ✅','Cancelled':'b-cancelled ❌'};
+  const [cls,icon] = (map[s]||'b-scheduled 📅').split(' ');
+  return `<span class="badge ${cls}">${icon} ${s}</span>`;
+}
+
+function emptyState(){
+  return `<div style="text-align:center;padding:4rem 2rem;background:#fff;border-radius:var(--r);border:1px solid var(--border)"><div style="font-size:3rem;margin-bottom:1rem">🔍</div><h3 style="font-size:1.3rem;margin-bottom:.5rem">Track Your Lab Results</h3><p style="color:var(--muted);max-width:480px;margin:0 auto">Enter your 10-digit mobile number above to view all diagnostic appointments and download your verified lab reports.</p></div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ADMIN PAGE
+// ═══════════════════════════════════════════════════════════════
+function renderAdmin(){
+  const bookings  = getBookings();
+  const patients  = getPatients();
+  const staff     = getStaff();
+  const statusF   = (document.getElementById('admin-status-filter')||{}).value||'';
+  const typeF     = (document.getElementById('admin-type-filter')||{}).value||'';
+  const session   = ls('session') || {};
+  const isAdmin   = session.role === 'Admin';
+
+  // Stats
+  const scheduled  = bookings.filter(b=>b.status==='Scheduled').length;
+  const processing = bookings.filter(b=>b.status==='Sample Collected').length;
+  const ready      = bookings.filter(b=>b.status==='Report Ready').length;
+  const revenue    = bookings.filter(b=>b.status!=='Cancelled').reduce((s,b)=>s+parseFloat(b.total_amount||0),0);
+  document.getElementById('admin-stats').innerHTML=`
+    <div class="stat-card"><div class="stat-card-label">Scheduled</div><div class="stat-card-num" style="color:var(--primary)">${scheduled}</div></div>
+    <div class="stat-card"><div class="stat-card-label">In Processing</div><div class="stat-card-num" style="color:var(--warning)">${processing}</div></div>
+    <div class="stat-card"><div class="stat-card-label">Reports Ready</div><div class="stat-card-num" style="color:var(--success)">${ready}</div></div>
+    <div class="stat-card"><div class="stat-card-label">Total Revenue</div><div class="stat-card-num" style="color:var(--text)">₹${revenue.toLocaleString()}</div></div>
+  `;
+
+  let filtered = bookings.slice().reverse();
+  if(statusF) filtered = filtered.filter(b=>b.status===statusF);
+  if(typeF)   filtered = filtered.filter(b=>b.booking_type===typeF);
+  filtered = filtered.slice(0,50);
+
+  document.getElementById('admin-table-wrap').innerHTML=`
+    <table>
+      <thead><tr><th>ID</th><th>Patient</th><th>Type / Slot</th><th>Tests</th><th>Update Status</th><th>Assign Staff</th><th>Payment</th>${isAdmin ? '<th>Action</th>' : ''}</tr></thead>
+      <tbody>${filtered.map(b=>{
+        const pt = patients.find(p=>p.patient_id===b.patient_id)||{full_name:'Unknown',phone:''};
+        return `<tr>
+          <td><strong style="color:var(--primary)">#${b.booking_id}</strong></td>
+          <td><strong>${pt.full_name}</strong><div style="font-size:.77rem;color:var(--muted)">📞 ${pt.phone}</div></td>
+          <td><span class="badge ${b.booking_type==='Home Collection'?'b-ready':'b-scheduled'}">${b.booking_type}</span><div style="font-size:.77rem;color:var(--muted);margin-top:.2rem">${b.slot_time}</div></td>
+          <td><div style="max-width:170px;font-size:.82rem">${testNames(b.test_ids||[])}</div></td>
+          <td>
+            <select onchange="updateBookingStatus(${b.booking_id},this.value)" style="padding:.3rem .5rem;font-size:.8rem;width:auto">
+              ${['Scheduled','Sample Collected','Report Ready','Cancelled'].map(s=>`<option ${b.status===s?'selected':''}>${s}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select onchange="updateBookingStaff(${b.booking_id},this.value)" style="padding:.3rem .5rem;font-size:.8rem;width:auto">
+              <option value="">Unassigned</option>
+              ${staff.filter(s=>s.role==='Technician').map(s=>`<option value="${s.staff_id}" ${b.staff_id==s.staff_id?'selected':''}>${s.full_name}</option>`).join('')}
+            </select>
+          </td>            <td>
+              <button class="btn btn-sm ${b.payment_status==='Paid'?'btn-teal':'btn-outline'}" onclick="togglePayment(${b.booking_id})">
+                ${b.payment_status||'Pending'}
+              </button>
+            </td>
+            ${isAdmin ? `<td><button class="btn btn-sm btn-outline" style="border-color:red; color:red;" onclick="deleteBooking(${b.booking_id})">Delete</button></td>` : ''}
+          </tr>`;
+      }).join('')}</tbody>
+    </table>`;
+
+  // Staff workload
+  const workload = staff.map(s=>({
+    id:s.staff_id, name:s.full_name, role:s.role,
+    count:bookings.filter(b=>(b.staff_id||0)===s.staff_id).length
+  }));
+  if (isAdmin) {
+    document.getElementById('staff-workload').innerHTML=workload.map(w=>`
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1.25rem 0; border-bottom:1px solid var(--border)">
+          <div style="flex:1; min-width:0; display:flex; flex-direction:column; gap:0.4rem;">
+             <div style="font-size:1.05rem; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${w.name}">${w.name}</div>
+             <select onchange="updateStaffRole(${w.id}, this.value)" style="padding:.3rem .5rem; font-size:.85rem; border:1px solid var(--border); border-radius:6px; background:#f8fafc; max-width:140px; cursor:pointer;">
+               ${['Technician', 'Receptionist', 'Courier', 'Admin'].map(r => `<option ${w.role===r?'selected':''}>${r}</option>`).join('')}
+             </select>
+          </div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:.6rem;">
+            <span class="badge b-scheduled" style="white-space:nowrap; font-size:.8rem; padding:.3rem .8rem;">${w.count} Assigned</span>
+            ${w.id !== session.id ? `<button class="btn btn-outline btn-sm" style="padding:.3rem .8rem; font-size:.8rem; border-color:#cbd5e1; color:var(--text);" onclick="removeStaff(${w.id})">Remove</button>` : `<div style="height:28px;"></div>`}
+          </div>
+        </div>`).join('') + `
+        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:.75rem;border-top:1px solid var(--border);padding-top:1.5rem">
+          <input id="new-staff-name" placeholder="Enter New Staff Name..." style="width:100%;padding:.7rem 1rem;font-size:.95rem;border:1px solid var(--border);border-radius:8px;outline:none;">
+          <button class="btn btn-teal" style="width:100%;padding:.7rem;border-radius:8px;font-size:1rem;" onclick="addStaff()">+ Add Staff</button>
+        </div>`;
+  } else {
+    const myStaff = workload.find(w => w.id === session.id);
+    if (myStaff) {
+      document.getElementById('staff-workload').innerHTML=`
+        <div style="padding:.7rem 0;">
+          <div><strong style="font-size:1.1rem;color:var(--primary-dark)">${myStaff.name}</strong></div>
+          <div style="font-size:.9rem;color:var(--muted);margin-top:.4rem;">Role: ${myStaff.role}</div>
+          <div style="margin-top:.8rem;"><span class="badge b-scheduled">${myStaff.count} Assigned Bookings</span></div>
+        </div>
+      `;
+    }
+  }
+}
+
+function renderPatients() {
+  const session = ls('session');
+  if(!session || session.type !== 'staff' || session.role !== 'Admin') { showPage('home'); return; }
+  
+  let customerHTML = `
+      <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:0 1px 3px rgba(0,0,0,.05);overflow-x:auto;">
+        <table style="width:100%; border-collapse:collapse; font-size:.9rem;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--border);text-align:left;">
+              <th style="padding:.5rem">ID</th>
+              <th style="padding:.5rem">Name</th>
+              <th style="padding:.5rem">Phone</th>
+              <th style="padding:.5rem">Email</th>
+              <th style="padding:.5rem">Gender</th>
+                <th style="padding:.5rem">DOB</th>
+                <th style="padding:.5rem">Blood</th>
+              <th style="padding:.5rem">Address</th>
+              <th style="padding:.5rem">Tier</th>
+                <th style="padding:.5rem;text-align:center;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+              ${getPatients().map(p => `
+                <tr style="border-bottom:1px solid var(--border);">
+                  <td style="padding:.5rem;color:var(--primary)">#${p.patient_id}</td>
+                  <td style="padding:.5rem"><strong>${p.full_name}</strong></td>
+                  <td style="padding:.5rem">${p.phone}</td>
+                  <td style="padding:.5rem">${p.email || '-'}</td>
+                  <td style="padding:.5rem">${p.gender || '-'}</td>
+                  <td style="padding:.5rem">${p.dob || '-'}</td>
+                  <td style="padding:.5rem">${p.blood_group || '-'}</td>
+                  <td style="padding:.5rem">${p.address || '-'}</td>
+                  <td style="padding:.5rem"><span class="badge ${p.membership_tier==='Premium'?'b-ready':'b-scheduled'}">${p.membership_tier || 'Standard'}</span></td>
+                  <td style="padding:.5rem;text-align:center;">
+                    <button class="btn btn-outline btn-sm" style="padding:.25rem .6rem; font-size:.75rem; border-color:#fca5a5; color:#dc2626;" onclick="removePatient(${p.patient_id})">Delete</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+        </table>
+      </div>`;
+      
+  const container = document.getElementById('patients-table-container');
+  if(container) container.innerHTML = customerHTML;
+}
+
+function addStaff() {
+  const session = ls('session');
+  if(!session || session.role !== 'Admin') return;
+  const name = document.getElementById('new-staff-name').value.trim();
+  if(!name) { flash('Please enter a staff name', 'danger'); return; }
+  const staff = getStaff();
+  const newId = Math.max(0, ...staff.map(s => s.staff_id)) + 1;
+  staff.push({ staff_id: newId, full_name: name, role: 'Technician' });
+  lsSet('staff', staff);
+  flash('Staff member ' + name + ' added successfully.', 'success');
+  renderAdmin();
+}
+
+function removeStaff(id) {
+  const session = ls('session');
+  if(!session || session.role !== 'Admin') return;
+  if(id === session.id) { flash('You cannot remove yourself.', 'danger'); return; }
+  let staff = getStaff();
+  staff = staff.filter(s => s.staff_id !== id);
+  lsSet('staff', staff);
+  flash('Staff member removed.', 'success');
+  renderAdmin();
+}
+
+function updateBookingStatus(id, status){
+  const bookings = getBookings();
+  const b = bookings.find(b=>b.booking_id===id);
+  if(b){ b.status=status; lsSet('bookings',bookings); }
+  flash(`Booking #${id} updated to "${status}".`, 'success');
+  renderAdmin();
+}
+
+function updateBookingStaff(bookingId, staffId) {
+  const bookings = getBookings();
+  const b = bookings.find(b=>b.booking_id===bookingId);
+  if (b) {
+    b.staff_id = staffId ? parseInt(staffId) : null;
+    lsSet('bookings', bookings);
+  }
+  flash(`Assigned technician to booking #${bookingId}`, 'success');
+  renderAdmin();
+}
+
+function updateStaffRole(staffId, newRole) {
+  const staff = getStaff();
+  const s = staff.find(st=>st.staff_id===staffId);
+  if (s) {
+    s.role = newRole;
+    lsSet('staff', staff);
+  }
+  flash(`Updated role for ${s.full_name} to ${newRole}`, 'success');
+  renderAdmin();
+}
+
+function deleteBooking(id) {
+    const session = ls('session');
+    if (!session || session.role !== 'Admin') {
+        alert('Access denied. Only Admins can delete records.');
+        return;
+    }
+    if(confirm('Are you sure you want to permanently delete this booking?')) {
+        let bookings = getBookings();
+        bookings = bookings.filter(b => b.booking_id !== id);
+        lsSet('bookings', bookings);
+        renderAdmin();
+    }
+}
+
+function togglePayment(id){
+  const bookings = getBookings();
+  const b = bookings.find(b=>b.booking_id===id);
+  if(b){ b.payment_status = b.payment_status==='Paid'?'Pending':'Paid'; lsSet('bookings',bookings); }
+  renderAdmin();
+}
+
+function resetFilters(){
+  document.getElementById('admin-status-filter').value='';
+  document.getElementById('admin-type-filter').value='';
+  renderAdmin();
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  REPORT PAGE
+// ═══════════════════════════════════════════════════════════════
+function renderReport(bookingId){
+  const bookings = getBookings();
+  const b = bookings.find(bk=>bk.booking_id===bookingId);
+  if(!b){ flash('Booking not found.','danger'); showPage('bookings'); return; }
+  const pt = getPatients().find(p=>p.patient_id===b.patient_id)||{full_name:'Unknown'};
+  const tests = getTestsByIds(b.test_ids||[]);
+  const results = ['Normal','Normal','Normal','Abnormal','Normal','Normal','Normal','Abnormal','Normal','Normal'];
+  document.getElementById('report-content').innerHTML=`
+    <div class="report-hdr">
+      <div>
+        <div style="font-family:var(--font-h);font-size:1.9rem;font-weight:800;color:var(--primary)">+ MediCheck Diagnostics</div>
+        <div style="font-size:.83rem;color:var(--muted)">NABL Accredited &amp; ISO 9001:2015 Certified Reference Laboratory<br>Helpline: +91 1800-123-4567 | Email: reports@medicheck.in</div>
+      </div>
+      <div style="text-align:right">
+        <span class="badge b-ready" style="font-size:.88rem">OFFICIAL TEST REPORT</span>
+        <div style="font-size:.83rem;color:var(--muted);margin-top:.5rem">Report Ref: <strong>#MC-${b.booking_id}-2026</strong></div>
+      </div>
+    </div>
+    <div class="report-meta">
+      <div>
+        <div style="font-size:.79rem;color:var(--muted);font-weight:700;text-transform:uppercase">Patient Info</div>
+        <div style="font-size:1.1rem;font-weight:700">${pt.full_name}</div>
+        <div style="font-size:.88rem;color:var(--muted)">DOB: ${pt.dob||'N/A'} | Gender: ${pt.gender||'N/A'} | Phone: ${pt.phone||''}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:.79rem;color:var(--muted);font-weight:700;text-transform:uppercase">Booking Info</div>
+        <div style="font-size:.93rem;font-weight:600">Booking Date: ${b.booking_date}</div>
+        <div style="font-size:.83rem;color:var(--muted)">Report Generated: ${new Date().toISOString().split('T')[0]}</div>
+      </div>
+    </div>
+    <h3 style="font-size:1.2rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:.5rem">Diagnostic Test Results Summary</h3>
+    <div class="table-wrap" style="margin-bottom:2.5rem">
+      <table>
+        <thead><tr><th>Test Investigation</th><th>Category</th><th>Sample Type</th><th>Observed Result</th><th>Status</th></tr></thead>
+        <tbody>${tests.map((t,i)=>{
+          const rs = results[i%results.length];
+          return `<tr>
+            <td><strong>${t.test_name}</strong></td>
+            <td>${t.category}</td>
+            <td>${t.sample_type}</td>
+            <td>${rs==='Normal'?'<span style="color:var(--success);font-weight:700">Within Normal Limits</span>':'<span style="color:var(--danger);font-weight:700">Attention Required</span>'}</td>
+            <td><span class="badge ${rs==='Normal'?'b-ready':'b-cancelled'}">${rs}</span></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-end;border-top:1px dashed var(--border);padding-top:2rem">
+      <div style="font-size:.83rem;color:var(--muted)">*** End of Medical Laboratory Report ***<br>This report is electronically authenticated by qualified pathologists.</div>
+      <div style="text-align:center">
+        <div style="font-family:serif;font-size:1.4rem;color:var(--primary-dark);font-style:italic">Dr. R. K. Patil (MD Path)</div>
+        <div style="font-size:.79rem;color:var(--muted);font-weight:700">Chief Consultant Pathologist</div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CONTACT
+// ═══════════════════════════════════════════════════════════════
+function submitContact(){
+  const name = document.getElementById('c-name').value.trim();
+  const email= document.getElementById('c-email').value.trim();
+  const msg  = document.getElementById('c-msg').value.trim();
+  if(!name||!email||!msg){ flash('Please fill in all required fields.','danger'); return; }
+  ['c-name','c-email','c-phone','c-msg'].forEach(id=>document.getElementById(id).value='');
+  flash(`Thank you ${name}! Your query has been received. Our team will get back to you within 2 hours.`, 'success');
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════════════
+renderHome();
+
+
+let authLocked = false;
+
+function openAuth(mode='login', locked=true){
+  authLocked = locked;
+  switchAuth(mode);
+  const overlay = document.getElementById('auth-overlay');
+  overlay.classList.add('open');
+  overlay.classList.toggle('locked', locked);
+  document.body.classList.toggle('auth-locked', locked);
+}
+
+function closeAuth(){
+  if(authLocked) return;
+  document.getElementById('auth-overlay').classList.remove('open');
+  document.getElementById('auth-overlay').classList.remove('locked');
+  document.body.classList.remove('auth-locked');
+}
+function switchAuth(mode){
+  ['login','register','staff'].forEach(x=>{
+    const p=document.getElementById('auth-'+x); if(p) p.classList.toggle('active',x===mode);
+  });
+  const tl=document.getElementById('tab-login'), tr=document.getElementById('tab-register');
+  if(tl) tl.classList.toggle('active',mode==='login');
+  if(tr) tr.classList.toggle('active',mode==='register');
+  const tabs=document.querySelector('.auth-tabs');
+  if(tabs) tabs.style.display=mode==='staff'?'none':'grid';
+  const sw=document.getElementById('staff-switch');
+  if(sw){
+    sw.textContent=mode==='staff'?'← Back to Patient Login':'Are you a staff member? Staff Login →';
+    sw.onclick=()=>switchAuth(mode==='staff'?'login':'staff');
+  }
+}
+function updateAuthNav(){
+  const nav=document.getElementById('auth-nav');
+  const session=ls('session');
+  
+  const adminNav = document.getElementById('nav-admin');
+  const bookingsNav = document.getElementById('nav-bookings');
+
+  let isStaff = (session && session.type === 'staff');
+  let isAdmin = false;
+  if (isStaff) {
+    let staff = getStaff().find(s => s.staff_id === session.id);
+    if (staff && staff.role === 'Admin') isAdmin = true;
+  }
+
+  if(adminNav) adminNav.style.display = isStaff ? 'inline-block' : 'none';
+  if(bookingsNav) bookingsNav.style.display = (session && session.type === 'staff') ? 'none' : 'inline-block';
+
+  if(!nav) return;
+  if(session){
+    nav.textContent='Logout';
+    nav.onclick=logout;
+  }else{
+    nav.textContent='Login';
+    nav.onclick=() => {
+      showPage('home');
+      setTimeout(() => {
+        const loginSec = document.querySelector('.split-login-section');
+        if(loginSec) loginSec.scrollIntoView({behavior: 'smooth'});
+        else openAuth('login', false);
+      }, 50);
+    };
+  }
+}
+
+function patientRegister(){
+  const name=document.getElementById('reg-name').value.trim();
+  const phone=document.getElementById('reg-phone').value.trim();
+  const password=document.getElementById('reg-password').value;
+  if(!name||!phone||!password){ alert('Please fill all required fields.'); return; }
+  if(!/^\d{10}$/.test(phone)){ alert('Please enter a valid 10-digit phone number.'); return; }
+  if(password.length<4){ alert('Password must contain at least 4 characters.'); return; }
+
+  let patients=getPatients();
+  let patient=patients.find(p=>p.phone===phone);
+  if(patient && patient.password){ alert('An account with this phone number already exists. Please login.'); switchAuth('login'); return; }
+  if(patient){
+    patient.full_name=name; patient.password=password;
+  }else{
+    patient={patient_id:nextPatientId(),full_name:name,dob:'',gender:'',phone,email:'',address:'',membership_tier:'Standard',password};
+    patients.push(patient);
+  }
+  lsSet('patients',patients);
+  lsSet('session',{type:'patient',id:patient.patient_id,name:patient.full_name});
+  authLocked=false; closeAuth(); updateAuthNav(); showPage('bookings');
+  flash('Account created successfully. Welcome, '+patient.full_name+'!','success');
+}
+function switchPageAuth(type) {
+  document.querySelectorAll('.page-auth-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-auth-' + type).classList.add('active');
+}
+
+function pagePatientRegister() {
+  const name=document.getElementById('page-reg-name').value.trim();
+  const phone=document.getElementById('page-reg-phone').value.trim();
+  const password=document.getElementById('page-reg-password').value;
+  const dob=document.getElementById('page-reg-dob').value;
+  const gender=document.getElementById('page-reg-gender').value;
+  const email=document.getElementById('page-reg-email').value.trim();
+  const address=document.getElementById('page-reg-address').value.trim();
+  const bloodgroup=document.getElementById('page-reg-bloodgroup').value;
+
+  if(!name||!phone||!password||!dob||!gender||!address||!bloodgroup){ flash('Please fill in all required fields.', 'danger'); return; }
+  let patients=getPatients();
+  if(patients.some(p=>p.phone===phone)){ flash('Phone number already registered. Please login.', 'danger'); switchPageAuth('login'); document.getElementById('page-login-phone').value=phone; return; }
+  const newId=patients.length>0 ? Math.max(...patients.map(p=>p.patient_id))+1 : 1;
+  
+  const patient={
+    patient_id:newId, full_name:name, phone:phone, password:password,
+    dob:dob, gender:gender, email:email, address:address, blood_group:bloodgroup, membership_tier:'Standard'
+  };
+  patients.push(patient);
+  lsSet('patients',patients);
+  lsSet('session',{type:'patient',id:patient.patient_id,name:patient.full_name});
+  updateAuthNav(); showPage('bookings');
+  flash('Account created successfully. Welcome, '+patient.full_name+'!','success');
+}
+
+function pageStaffLogin() {
+  const id=parseInt(document.getElementById('page-staff-id').value);
+  const password=document.getElementById('page-staff-password').value;
+  const staff=getStaff().find(s=>s.staff_id===id);
+  if(!staff){ flash('Invalid Staff ID.', 'danger'); return; }
+  if(password!=='medicheck123'){ flash('Incorrect staff password.', 'danger'); return; }
+  lsSet('session',{type:'staff',id:staff.staff_id,name:staff.full_name,role:staff.role});
+  updateAuthNav(); showPage('admin');
+  flash('Logged into staff portal as '+staff.full_name,'success');
+}
+
+function pagePatientLogin(){
+  const phone=document.getElementById('page-login-phone').value.trim();
+  const password=document.getElementById('page-login-password').value;
+  if(!phone||!password){ flash('Please enter phone number and password.', 'danger'); return; }
+  const patient=getPatients().find(p=>p.phone===phone);
+  if(!patient){ flash('No patient account found. Please register first.', 'danger'); return; }
+  if(!patient.password){
+    alert('This is a preloaded demo patient. Please use Register with this phone number once to create a password.');
+    openAuth(); switchAuth('register'); document.getElementById('reg-phone').value=phone; return;
+  }
+  if(patient.password!==password){ flash('Incorrect password.', 'danger'); return; }
+  lsSet('session',{type:'patient',id:patient.patient_id,name:patient.full_name});
+  updateAuthNav(); showPage('bookings'); // Redirects to My Bookings directly!
+  flash('Welcome back, '+patient.full_name+'!','success');
+}
+
+function patientLogin(){
+  const phone=document.getElementById('login-phone').value.trim();
+  const password=document.getElementById('login-password').value;
+  if(!phone||!password){ alert('Please enter phone number and password.'); return; }
+  const patient=getPatients().find(p=>p.phone===phone);
+  if(!patient){ alert('No patient account found. Please register first.'); return; }
+  if(!patient.password){
+    alert('This is a preloaded demo patient. Please use Register with this phone number once to create a password.');
+    switchAuth('register'); document.getElementById('reg-phone').value=phone; return;
+  }
+  if(patient.password!==password){ alert('Incorrect password.'); return; }
+  lsSet('session',{type:'patient',id:patient.patient_id,name:patient.full_name});
+  authLocked=false; closeAuth(); updateAuthNav(); showPage('bookings');
+  flash('Welcome back, '+patient.full_name+'!','success');
+}
+function staffLogin(){
+  const id=parseInt(document.getElementById('staff-id').value);
+  const password=document.getElementById('staff-password').value;
+  const staff=getStaff().find(s=>s.staff_id===id);
+  if(!staff){ alert('Invalid Staff ID.'); return; }
+  if(password!=='medicheck123'){ alert('Incorrect staff password.'); return; }
+  lsSet('session',{type:'staff',id:staff.staff_id,name:staff.full_name,role:staff.role});
+  authLocked=false; closeAuth(); updateAuthNav(); showPage('admin');
+  flash('Staff login successful — '+staff.full_name+' ('+staff.role+').','success');
+}
+function logout(){
+  localStorage.removeItem('mc_session');
+  updateAuthNav(); showPage('home');
+  flash('You have been logged out.','success');
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAuth(); });
+window.addEventListener('load',()=>{
+  updateAuthNav();
+  if(!ls('session')) setTimeout(()=>openAuth('login', false),250);
+});
+
+function downloadPDF() {
+  const element = document.getElementById('report-content');
+  const opt = {
+    margin:       0.5,
+    filename:     'MediCheck_Lab_Report.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+  html2pdf().set(opt).from(element).save();
+}
+
+</script>
+</body>
+</html>

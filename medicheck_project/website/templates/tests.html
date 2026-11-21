@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}Tests & Packages — MediCheck Diagnostic Lab{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding-top: 2.5rem;">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">Diagnostic Tests &amp; Packages</h1>
+      <p class="section-subtitle">Browse individual diagnostic tests or multi-parameter checkup packages.</p>
+    </div>
+    <a href="{{ url_for('book') }}" class="btn btn-primary">Book Selected Test &rarr;</a>
+  </div>
+
+  <!-- Search & Category Filters -->
+  <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+    <form action="{{ url_for('tests') }}" method="GET" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: center; justify-content: space-between;">
+      <div style="display: flex; gap: 0.5rem; flex: 1; min-width: 280px;">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Search test name (e.g. CBC, Lipid, Thyroid)..." style="flex: 1;">
+        <button type="submit" class="btn btn-primary btn-sm">Search</button>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ url_for('tests') }}" class="btn btn-sm {% if not selected_category %}btn-teal{% else %}btn-outline{% endif %}">All Categories</a>
+        {% for cat in categories %}
+          <a href="{{ url_for('tests', category=cat.category) }}" class="btn btn-sm {% if selected_category == cat.category %}btn-teal{% else %}btn-outline{% endif %}">
+            {{ cat.category }}
+          </a>
+        {% endfor %}
+      </div>
+    </form>
+  </div>
+
+  {% if packages and not selected_category and not search_query %}
+  <div style="margin-bottom: 3.5rem;">
+    <h2 style="font-size: 1.5rem; margin-bottom: 1.25rem;">📦 Wellness Health Packages</h2>
+    <div class="grid-4">
+      {% for pkg in packages %}
+      <div class="card">
+        <div class="card-badge {% if pkg.tier == 'Premium' %}badge-premium{% else %}badge-mass{% endif %}">
+          {{ pkg.tier }} Package
+        </div>
+        <h3 class="card-title" style="font-size: 1.15rem;">{{ pkg.package_name }}</h3>
+        <p class="card-desc" style="font-size: 0.85rem;">{{ pkg.description }}</p>
+
+        {% if pkg.tests_included %}
+        <div style="margin-bottom: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+          <strong>Includes:</strong> {{ pkg.tests_included | join(', ') }}
+        </div>
+        {% endif %}
+
+        <div class="card-price" style="font-size: 1.4rem;">₹{{ pkg.price }}</div>
+        <a href="{{ url_for('book', package_id=pkg.package_id) }}" class="btn btn-teal btn-sm" style="width: 100%;">Book Package</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    <h2 style="font-size: 1.5rem; margin-bottom: 1.25rem;">🧪 Available Lab Tests ({{ tests | length }})</h2>
+
+    {% if tests %}
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Test Name</th>
+            <th>Category</th>
+            <th>Sample Type</th>
+            <th>Turnaround Time</th>
+            <th>Price</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tests %}
+          <tr>
+            <td>
+              <strong style="font-size: 1rem; color: var(--text-main);">{{ t.test_name }}</strong>
+            </td>
+            <td>
+              <span class="badge badge-scheduled">{{ t.category }}</span>
+            </td>
+            <td>
+              <span style="font-weight: 500;">🩸 {{ t.sample_type }}</span>
+            </td>
+            <td>⏱️ {{ t.report_time_hrs }} Hours</td>
+            <td>
+              <strong style="font-size: 1.1rem; color: var(--primary);">₹{{ t.price }}</strong>
+            </td>
+            <td>
+              <a href="{{ url_for('book', test_id=t.test_id) }}" class="btn btn-primary btn-sm">Book Test</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; background: white; border-radius: var(--radius-md); border: 1px solid var(--border-light);">
+      <p style="font-size: 1.1rem; color: var(--text-muted);">No lab tests match your search criteria.</p>
+      <a href="{{ url_for('tests') }}" class="btn btn-outline btn-sm" style="margin-top: 1rem;">Reset Filters</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+erDiagram
+    PATIENTS ||--o{ BOOKINGS : makes
+    STAFF ||--o{ BOOKINGS : "assigned to"
+    BOOKINGS ||--o{ BOOKING_TESTS : includes
+    TESTS ||--o{ BOOKING_TESTS : "part of"
+    TESTS ||--o{ PACKAGE_TESTS : "included in"
+    PACKAGES ||--o{ PACKAGE_TESTS : bundles
+    BOOKINGS ||--o{ REPORTS : generates
+    TESTS ||--o{ REPORTS : "result for"
+    BOOKINGS ||--o{ PAYMENTS : "paid via"
+
+    PATIENTS {
+        int patient_id PK
+        string full_name
+        date dob
+        string gender
+        string phone UK
+        string email UK
+        string membership_tier "Mass or Premium"
+    }
+    STAFF {
+        int staff_id PK
+        string full_name
+        string role
+        string phone
+    }
+    TESTS {
+        int test_id PK
+        string test_name
+        string category
+        string sample_type
+        decimal price
+        int report_time_hrs
+    }
+    PACKAGES {
+        int package_id PK
+        string package_name
+        decimal price
+        string tier "Mass or Premium"
+    }
+    PACKAGE_TESTS {
+        int package_id FK
+        int test_id FK
+    }
+    BOOKINGS {
+        int booking_id PK
+        int patient_id FK
+        int assigned_staff FK
+        string booking_type "Walk-in or Home Collection"
+        date booking_date
+        time slot_time
+        string status
+        decimal total_amount
+    }
+    BOOKING_TESTS {
+        int booking_id FK
+        int test_id FK
+    }
+    REPORTS {
+        int report_id PK
+        int booking_id FK
+        int test_id FK
+        string result_status
+        date report_date
+    }
+    PAYMENTS {
+        int payment_id PK
+        int booking_id FK
+        decimal amount
+        string payment_mode
+        string payment_status
+    }

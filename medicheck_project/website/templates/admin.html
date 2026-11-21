@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Staff & Admin Dashboard — MediCheck{% endblock %}
+
+{% block content %}
+<div class="wrap" style="padding-top: 2.5rem;">
+  <div class="section-head">
+    <div>
+      <h1 class="section-title">Staff &amp; Operations Dashboard</h1>
+      <p class="section-subtitle">Manage lab sample collection, assign phlebotomists/couriers, and update test report status.</p>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+      <span class="badge badge-ready">Online System Active</span>
+    </div>
+  </div>
+
+  <!-- Operational Metrics Cards -->
+  <div class="grid-4" style="margin-bottom: 2.5rem;">
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Scheduled Appointments</div>
+      <div style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 800; color: var(--primary);">{{ stats.pending_count }}</div>
+    </div>
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Samples In Processing</div>
+      <div style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 800; color: var(--warning);">{{ stats.processing_count }}</div>
+    </div>
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Reports Completed</div>
+      <div style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 800; color: var(--success);">{{ stats.ready_count }}</div>
+    </div>
+    <div class="card" style="padding: 1.25rem;">
+      <div style="font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Total Booking Revenue</div>
+      <div style="font-family: var(--font-heading); font-size: 2.25rem; font-weight: 800; color: var(--text-main);">₹{{ stats.total_revenue or 0 }}</div>
+    </div>
+  </div>
+
+  <!-- Filter Controls -->
+  <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow-sm);">
+    <form action="{{ url_for('admin') }}" method="GET" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+      <div style="font-weight: 700; font-size: 0.9rem; color: var(--text-muted);">Filter Bookings:</div>
+      
+      <select name="status" onchange="this.form.submit()" style="width: auto;">
+        <option value="">All Statuses</option>
+        <option value="Scheduled" {% if selected_status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+        <option value="Sample Collected" {% if selected_status == 'Sample Collected' %}selected{% endif %}>Sample Collected</option>
+        <option value="Report Ready" {% if selected_status == 'Report Ready' %}selected{% endif %}>Report Ready</option>
+        <option value="Cancelled" {% if selected_status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+      </select>
+
+      <select name="type" onchange="this.form.submit()" style="width: auto;">
+        <option value="">All Types</option>
+        <option value="Walk-in" {% if selected_type == 'Walk-in' %}selected{% endif %}>Walk-in</option>
+        <option value="Home Collection" {% if selected_type == 'Home Collection' %}selected{% endif %}>Home Collection</option>
+      </select>
+
+      <a href="{{ url_for('admin') }}" class="btn btn-outline btn-sm">Reset Filters</a>
+    </form>
+  </div>
+
+  <div style="display: grid; grid-template-columns: 2.2fr 1fr; gap: 2rem;">
+    <!-- Bookings Table & Status Update Forms -->
+    <div>
+      <h2 style="font-size: 1.35rem; margin-bottom: 1rem;">Recent Booking Orders</h2>
+
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Patient</th>
+              <th>Type / Slot</th>
+              <th>Tests</th>
+              <th>Assigned Staff</th>
+              <th>Update Status</th>
+              <th>Payment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for b in bookings %}
+            <tr>
+              <td><strong style="color: var(--primary);">#{{ b.booking_id }}</strong></td>
+              <td>
+                <strong style="color: var(--text-main);">{{ b.full_name }}</strong>
+                <div style="font-size: 0.78rem; color: var(--text-muted);">📞 {{ b.phone }}</div>
+              </td>
+              <td>
+                <span class="badge {% if b.booking_type == 'Home Collection' %}badge-ready{% else %}badge-scheduled{% endif %}">
+                  {{ b.booking_type }}
+                </span>
+                <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">{{ b.slot_time }}</div>
+              </td>
+              <td>
+                <div style="max-width: 180px; font-size: 0.82rem; color: var(--text-main);">
+                  {{ b.test_list or 'Standard Panel' }}
+                </div>
+              </td>
+              <td>
+                <div style="font-size: 0.85rem; font-weight: 600;">
+                  {{ b.staff_name or 'Unassigned' }}
+                </div>
+              </td>
+              <td>
+                <form action="{{ url_for('admin') }}" method="POST" style="display: flex; gap: 0.35rem; flex-direction: column;">
+                  <input type="hidden" name="action" value="update_status">
+                  <input type="hidden" name="booking_id" value="{{ b.booking_id }}">
+                  
+                  <select name="status" style="padding: 0.3rem 0.5rem; font-size: 0.8rem;">
+                    <option value="Scheduled" {% if b.status == 'Scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="Sample Collected" {% if b.status == 'Sample Collected' %}selected{% endif %}>Sample Collected</option>
+                    <option value="Report Ready" {% if b.status == 'Report Ready' %}selected{% endif %}>Report Ready</option>
+                    <option value="Cancelled" {% if b.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                  </select>
+
+                  <select name="assigned_staff" style="padding: 0.3rem 0.5rem; font-size: 0.8rem;">
+                    <option value="">Assign Staff...</option>
+                    {% for st in staff %}
+                      <option value="{{ st.staff_id }}" {% if b.staff_id == st.staff_id %}selected{% endif %}>
+                        {{ st.full_name }} ({{ st.role }})
+                      </option>
+                    {% endfor %}
+                  </select>
+
+                  <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Save</button>
+                </form>
+              </td>
+              <td>
+                <form action="{{ url_for('admin') }}" method="POST">
+                  <input type="hidden" name="action" value="update_payment">
+                  <input type="hidden" name="booking_id" value="{{ b.booking_id }}">
+                  <input type="hidden" name="payment_status" value="{% if b.payment_status == 'Paid' %}Pending{% else %}Paid{% endif %}">
+                  <button type="submit" class="btn btn-sm {% if b.payment_status == 'Paid' %}btn-teal{% else %}btn-outline{% endif %}" style="padding: 0.3rem 0.6rem; font-size: 0.78rem;">
+                    {{ b.payment_status or 'Pending' }}
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Staff Workload Breakdown -->
+    <div>
+      <h2 style="font-size: 1.35rem; margin-bottom: 1rem;">Staff Workload Breakdown</h2>
+      
+      <div style="background: white; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+        {% for w in workload %}
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+          <div>
+            <strong style="color: var(--text-main); font-size: 0.95rem;">{{ w.full_name }}</strong>
+            <div style="font-size: 0.78rem; color: var(--text-muted);">{{ w.role }}</div>
+          </div>
+          <div>
+            <span class="badge badge-scheduled">{{ w.bookings_assigned }} Assigned</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

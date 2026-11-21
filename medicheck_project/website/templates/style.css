@@ -1,0 +1,208 @@
+/* =========================================================
+   MediCheck — visual identity
+   Palette:  ink #14231F · paper #F4F6F2 · pine #1F4D42
+             marigold #D99A34 · leaf #4C8B6F · line #D8DED9
+   Type:     Fraunces (display) / IBM Plex Sans (body) / IBM Plex Mono (data)
+   Signature: diagnostic "specimen label" cards + dashed tear-off rules
+   ========================================================= */
+
+:root {
+  --ink: #14231F;
+  --paper: #F4F6F2;
+  --pine: #1F4D42;
+  --marigold: #D99A34;
+  --leaf: #4C8B6F;
+  --line: #D8DED9;
+  --paper-raised: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", -apple-system, sans-serif;
+  line-height: 1.55;
+}
+
+h1, h2, h3 {
+  font-family: "Fraunces", Georgia, serif;
+  font-weight: 600;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+}
+h1 { font-size: clamp(2rem, 4vw, 3rem); }
+h2 { font-size: clamp(1.4rem, 2.5vw, 1.9rem); margin-top: 0; }
+
+.mono { font-family: "IBM Plex Mono", monospace; }
+
+a { color: var(--pine); }
+a:focus-visible, button:focus-visible, input:focus-visible,
+select:focus-visible, .chip:focus-visible {
+  outline: 2px solid var(--marigold);
+  outline-offset: 2px;
+}
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+
+.eyebrow {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  color: var(--leaf);
+  margin: 0 0 0.6em;
+}
+
+/* ---------- Header ---------- */
+.site-header { background: var(--pine); color: var(--paper); }
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 12px; padding: 16px 24px;
+}
+.brand {
+  font-family: "Fraunces", serif; font-weight: 700; font-size: 1.3rem;
+  color: var(--paper); text-decoration: none; display: flex; align-items: center; gap: 6px;
+}
+.brand-mark {
+  display: inline-block; width: 26px; height: 26px; border-radius: 50%;
+  background: var(--marigold); color: var(--ink); text-align: center; line-height: 26px;
+  font-weight: 700;
+}
+nav { display: flex; gap: 18px; flex-wrap: wrap; }
+nav a { color: var(--paper); text-decoration: none; font-size: 0.92rem; opacity: 0.9; }
+nav a:hover { opacity: 1; text-decoration: underline; }
+
+.flash-tag {
+  background: var(--marigold); color: var(--ink); padding: 10px 16px;
+  border-radius: 3px; margin: 16px auto 0; font-size: 0.92rem;
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px;
+  align-items: center; padding: 56px 24px 40px;
+}
+.hero-copy .lede { font-size: 1.05rem; color: #3A4A44; max-width: 46ch; }
+.cta-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+
+.btn {
+  display: inline-block; padding: 12px 22px; border-radius: 3px;
+  text-decoration: none; font-weight: 600; font-size: 0.95rem;
+  border: 1px solid transparent; cursor: pointer;
+}
+.btn-primary { background: var(--pine); color: var(--paper); }
+.btn-primary:hover { background: #163a31; }
+.btn-ghost { background: transparent; color: var(--pine); border-color: var(--pine); }
+.btn-small { padding: 6px 12px; font-size: 0.82rem; background: var(--leaf); color: white; border-radius: 3px; border: none; }
+
+/* ---------- Signature element: specimen card ---------- */
+.specimen-card {
+  background: var(--paper-raised);
+  border: 1px dashed var(--pine);
+  border-radius: 6px;
+  padding: 18px 20px;
+  max-width: 320px;
+  margin-left: auto;
+}
+.specimen-row {
+  display: flex; justify-content: space-between; gap: 12px;
+  font-family: "IBM Plex Mono", monospace; font-size: 0.82rem;
+  padding: 6px 0; border-bottom: 1px dotted var(--line);
+}
+.specimen-row span:first-child { color: var(--leaf); letter-spacing: 0.04em; }
+.specimen-row:last-of-type { border-bottom: none; }
+.specimen-barcode {
+  margin-top: 10px; letter-spacing: 2px; font-size: 1.1rem; color: var(--ink);
+  text-align: center;
+}
+
+.lab-tag {
+  display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: 0.7rem;
+  letter-spacing: 0.08em; background: var(--leaf); color: white;
+  padding: 3px 9px; border-radius: 2px; margin-bottom: 10px;
+}
+.lab-tag-premium { background: var(--marigold); color: var(--ink); }
+
+/* ---------- Stats ---------- */
+.stats-row {
+  display: flex; gap: 40px; padding: 24px 24px 48px; flex-wrap: wrap;
+  border-bottom: 1px dashed var(--line);
+}
+.stat { display: flex; flex-direction: column; }
+.stat-num { font-family: "Fraunces", serif; font-size: 2.2rem; font-weight: 700; color: var(--pine); }
+.stat-label { font-size: 0.85rem; color: var(--leaf); }
+
+/* ---------- Tiers ---------- */
+.tiers { padding: 48px 24px; }
+.tier-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+.tier-card {
+  background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px;
+  padding: 24px;
+}
+.tier-card-premium { border-color: var(--marigold); }
+.tier-card ul { padding-left: 20px; margin: 12px 0 0; color: #3A4A44; }
+.price-tag { font-size: 1.1rem; font-weight: 600; margin-top: 10px; }
+
+/* ---------- Tables ---------- */
+.data-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+.data-table th {
+  text-align: left; font-family: "IBM Plex Mono", monospace; font-size: 0.75rem;
+  letter-spacing: 0.05em; color: var(--leaf); border-bottom: 2px solid var(--pine);
+  padding: 8px 10px;
+}
+.data-table td { padding: 10px; border-bottom: 1px solid var(--line); font-size: 0.92rem; }
+.data-table tr:hover td { background: rgba(76,139,111,0.06); }
+
+/* ---------- Filter chips ---------- */
+.filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+.chip {
+  font-size: 0.82rem; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--line);
+  text-decoration: none; color: var(--ink); background: white;
+}
+.chip-active { background: var(--pine); color: white; border-color: var(--pine); }
+
+/* ---------- Forms ---------- */
+.booking-form, .lookup-form { background: var(--paper-raised); border: 1px solid var(--line); border-radius: 8px; padding: 24px; margin-top: 12px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+label { display: flex; flex-direction: column; font-size: 0.85rem; color: var(--leaf); gap: 6px; }
+input, select {
+  font-family: inherit; font-size: 0.95rem; padding: 9px 10px; border: 1px solid var(--line);
+  border-radius: 4px; color: var(--ink); background: white;
+}
+fieldset.test-picker { border: 1px dashed var(--line); border-radius: 6px; margin-top: 20px; padding: 14px 18px; }
+legend { font-family: "IBM Plex Mono", monospace; font-size: 0.78rem; color: var(--leaf); padding: 0 6px; }
+.test-checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; }
+.test-check { flex-direction: row; align-items: center; font-size: 0.9rem; color: var(--ink); }
+.test-check input { width: auto; margin-right: 8px; }
+.inline-form { display: flex; gap: 6px; align-items: center; }
+
+/* ---------- Status pills ---------- */
+.status-pill { font-size: 0.78rem; padding: 3px 10px; border-radius: 999px; font-weight: 600; }
+.status-scheduled { background: #E7EEEC; color: var(--pine); }
+.status-sample-collected { background: #FBEBD0; color: #8A5A12; }
+.status-report-ready { background: #DCEFE3; color: #1F6B45; }
+.status-cancelled { background: #F5DCDC; color: #A13A3A; }
+
+.booking-result { max-width: 480px; margin: 20px 0; }
+.empty-state { color: var(--leaf); font-style: italic; padding: 20px 0; }
+.cta-band { padding: 12px 24px 56px; }
+.page-head { padding: 40px 24px 8px; }
+.about-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 32px; padding: 32px 24px 56px; align-items: start; }
+
+/* ---------- Footer ---------- */
+.site-footer { background: var(--ink); color: #C9D3CC; margin-top: 40px; }
+.footer-inner { display: flex; justify-content: space-between; align-items: center; padding: 24px; flex-wrap: wrap; gap: 16px; }
+.fine-print { font-size: 0.78rem; color: #8FA097; margin-top: 4px; }
+.tag-strip { display: flex; gap: 8px; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .hero, .form-grid, .tier-grid, .about-grid, .test-checklist { grid-template-columns: 1fr; }
+  .hero-label { order: -1; }
+  .specimen-card { margin: 0 auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
